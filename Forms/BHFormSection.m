@@ -22,15 +22,14 @@
 @synthesize emptyCell;
 @synthesize rowSpacing;
 @synthesize currentCell;
+@synthesize sectionIndex;
 
 - (id)initWithFormVC:(BHFormViewController*)formVC1 {
     if ((self = [super init])) {
-        
-        self.formVC = formVC1;        
-        [self.formVC.sections addObject:self];
-        
+
+        self.formVC = formVC1;
         self.isHidden = NO;
-        [self.formVC updateActiveSections];  
+        [self.formVC addSection:self];
         
         if (self.emptyCellClass) {
             self.emptyCell = [BHNIBTools cachedTableCellWithClass:self.emptyCellClass tableView:self.formVC.tableView];

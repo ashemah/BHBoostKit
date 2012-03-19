@@ -11,7 +11,7 @@
 
 typedef CGFloat (^HeightForRowBlock)(id dummyCell, NSInteger row);
 typedef void (^ConfigureCellForRowBlock)(id cell, NSInteger row);
-typedef void (^DidTapCellInSectionBlock)(id ell, NSInteger row);
+typedef void (^DidTapCellInSectionBlock)(id cell, NSInteger row);
 typedef void (^DidSwipeDeleteCellInSectionBlock)(id cell, NSInteger row);
 
 typedef CGFloat (^HeightForFRCRowBlock)(id dummyCell, id obj, NSInteger row);
@@ -39,6 +39,7 @@ typedef BOOL (^IsHiddenBlock)();
 @property (nonatomic, retain) UITableViewCell *emptyCell;
 @property (nonatomic, assign) CGFloat rowSpacing;
 @property (nonatomic, retain) id currentCell;
+@property (nonatomic, assign) NSUInteger sectionIndex;
 
 
 - (id)initWithFormVC:(BHFormViewController*)formVC;

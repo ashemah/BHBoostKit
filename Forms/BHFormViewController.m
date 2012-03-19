@@ -34,6 +34,10 @@
 @synthesize activeSections;
 @synthesize textFieldHelper = _tfHelper;
 
+- (void)addSection:(BHFormSection*)section {
+    [self.sections addObject:section];
+    [self updateActiveSections];
+}
 
 - (void)dealloc {
     [_tfHelper release];
@@ -66,9 +70,15 @@
 
 - (void)updateActiveSections {
     
+    NSInteger sectionIndex = 0;
     NSMutableArray *array = [NSMutableArray array];
+    
     for (BHFormSection *section in self.sections) {
-        if (!section.isHidden) {
+        
+        if (!section.isHidden) {            
+            section.sectionIndex = sectionIndex;
+            sectionIndex++;
+            
             [array addObject:section];
         }
     }

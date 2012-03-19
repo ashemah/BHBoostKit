@@ -42,4 +42,5 @@
 - (void)openSectionAtIndex:(NSInteger)index;
 - (void)closeSectionAtIndex:(NSInteger)index;
 - (void)refreshForm;
+- (void)addSection:(BHFormSection*)section;
 @end
