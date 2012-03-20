@@ -70,6 +70,9 @@ typedef void (^FieldDataDidChangeBlock)(NSString *key, NSString* text);
 - (UIView *)findNextResponder:(NSInteger)tabOrder;
 - (void)setTextFromDictionary:(NSDictionary*)dict;
 
-//- (NSDictionary*)dictionaryFromValues;
+- (void)setData:(id)data forKey:(NSString *)key;
+- (id)dataForKey:(NSString *)key;
+
+- (BOOL)hasDataForKey:(NSString*)key;
 
 @end

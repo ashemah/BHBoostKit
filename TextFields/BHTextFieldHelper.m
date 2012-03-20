@@ -148,6 +148,14 @@
     return [self.info objectForKey:num];
 }
 
+- (void)setData:(id)data forKey:(NSString *)key {
+    [self.dataDict setObject:data forKey:key];
+}
+
+- (id)dataForKey:(NSString *)key {
+    return [self.dataDict objectForKey:key];
+}
+
 - (void)setText:(NSString*)text forKey:(NSString*)fieldName {
     
     if (text) {
@@ -163,10 +171,17 @@
 
 - (NSString*)textForKey:(NSString*)fieldName {
     
-    NSString *data = [self.dataDict objectForKey:fieldName];
+    id data = [self.dataDict objectForKey:fieldName];
     
     if (data) {
-        return data;
+        if ([data isKindOfClass:[NSString class]]) {
+            return data;
+        }
+        else if ([data isKindOfClass:[NSNumber class]]) {
+            return [data stringValue];
+        }
+        
+        return [data description];
     }
     else {
         return @"";
@@ -304,6 +319,10 @@
 - (BOOL)keyIsValid:(NSString*)fieldName {
     NSString *text = [self.dataDict objectForKey:fieldName];
     return text != nil;
+}
+
+- (BOOL)hasDataForKey:(NSString*)key {
+    return [self.dataDict objectForKey:key] != nil;
 }
 
 @end
