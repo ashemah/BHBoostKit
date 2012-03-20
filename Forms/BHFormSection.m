@@ -23,8 +23,13 @@
 @synthesize rowSpacing;
 @synthesize currentCell;
 @synthesize sectionIndex;
+@synthesize dummyCell;
+@synthesize currentRow;
+@synthesize isLastRow;
+@synthesize isFirstRow;
+@synthesize lastTappedRow;
 
-- (id)initWithFormVC:(BHFormViewController*)formVC1 {
+- (id)initWithFormVC:(BHBlockTableViewController*)formVC1 {
     if ((self = [super init])) {
 
         self.formVC = formVC1;
@@ -34,6 +39,8 @@
         if (self.emptyCellClass) {
             self.emptyCell = [BHNIBTools cachedTableCellWithClass:self.emptyCellClass tableView:self.formVC.tableView];
         }
+        
+        self.lastTappedRow = -1;
     }
     
     return self;    
@@ -111,6 +118,7 @@
 };
 
 - (void)didTapRow:(NSInteger)row {
+    
     if (_isEmpty) {
         return;
     }
@@ -120,6 +128,37 @@
     if (_isEmpty) {
         return;
     }    
+}
+
+- (void)reloadCell:(NSInteger)row animation:(UITableViewRowAnimation)animation {
+    if (row < 0 || row > self.rowCount-1) {
+        return;
+    }
+    
+    // TODO: Move into a delegate
+    [self.formVC.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:row inSection:self.sectionIndex]] withRowAnimation:animation];    
+}
+
+- (void)reload {
+    [self reloadWithAnimation:UITableViewRowAnimationNone];
+}
+
+- (void)reloadWithAnimation:(UITableViewRowAnimation)animation {
+    [self.formVC.tableView reloadData];
+//    [self.formVC.tableView reloadSections:[NSIndexSet indexSetWithIndex:self.sectionIndex] withRowAnimation:animation];
+}
+
+- (void)singleSelectRow:(NSInteger)row usingAnimation:(UITableViewRowAnimation)animation {
+
+    if (self.lastTappedRow > 0 || self.lastTappedRow <= self.rowCount-1) {
+        [self reloadCell:self.lastTappedRow animation:UITableViewRowAnimationNone];
+    }
+ 
+    if (row > 0 || row <= self.rowCount-1) {
+        [self reloadCell:row animation:animation];
+    }
+    
+    self.lastTappedRow = row;
 }
 
 @end

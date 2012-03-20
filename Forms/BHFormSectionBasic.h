@@ -14,12 +14,12 @@
 }
 
 @property (nonatomic, retain) NSMutableArray *fields;
-@property (readwrite, copy) HeightForRowBlock heightForRowBlock;
-@property (readwrite, copy) ConfigureCellForRowBlock configureCellForRowBlock;
-@property (readwrite, copy) DidTapCellInSectionBlock didTapCellInSectionBlock;
-@property (readwrite, copy) DidSwipeDeleteCellInSectionBlock didSwipeDeleteCellInSectionBlock;
+@property (readwrite, copy) HeightForCellBlock heightForRow;
+@property (readwrite, copy) ConfigureCellBlock configureRow;
+@property (readwrite, copy) DidTapCellInSectionBlock didTapRow;
+@property (readwrite, copy) DidSwipeDeleteCellInSectionBlock didSwipeToDeleteRow;
 
-- (void)addWidgetWithClass:(NSString*)widgetClass;
-+ (BHFormSectionBasic*)formSectionForFormVC:(BHFormViewController*)vc;
-
+- (void)addCellFromNIBWithName:(NSString*)widgetClass;
++ (BHFormSectionBasic*)formSectionForFormVC:(BHBlockTableViewController*)vc;
+- (void)removeAllCells;
 @end

@@ -12,12 +12,12 @@
 @implementation BHFormSectionBasic
 
 @synthesize fields;
-@synthesize heightForRowBlock;
-@synthesize configureCellForRowBlock;
-@synthesize didTapCellInSectionBlock;
-@synthesize didSwipeDeleteCellInSectionBlock;
+@synthesize heightForRow;
+@synthesize configureRow;
+@synthesize didTapRow;
+@synthesize didSwipeToDeleteRow;
 
-+ (BHFormSectionBasic*)formSectionForFormVC:(BHFormViewController*)vc {
++ (BHFormSectionBasic*)formSectionForFormVC:(BHBlockTableViewController*)vc {
     return [[[BHFormSectionBasic alloc] initWithFormVC:vc] autorelease];
 }
 
@@ -30,8 +30,12 @@
     return self;
 }
 
-- (void)addWidgetWithClass:(NSString*)widgetClass {
+- (void)addCellFromNIBWithName:(NSString*)widgetClass {
     [self.fields addObject:widgetClass];
+}
+
+- (void)removeAllCells {
+    [self.fields removeAllObjects];
 }
 
 - (NSInteger)rowCount {
@@ -45,22 +49,31 @@
     }
     
     NSString *widgetClass = [self.fields objectAtIndex:row];
-    UITableViewCell *dummyCell = [self.formVC cachedCell:widgetClass];
     
-    if (self.heightForRowBlock) {
-        return self.heightForRowBlock(dummyCell, row);
+    self.dummyCell = [self.formVC cachedCell:widgetClass];
+    self.currentRow = row;
+
+    self.isFirstRow = row == 0;
+    self.isLastRow  = row == [self.fields count]-1;
+    
+    if (self.heightForRow) {
+        return self.heightForRow();
     }
     
-    return dummyCell.frame.size.height;
+    return ((UIView*)self.dummyCell).frame.size.height;
 }
 
 - (id)internalCellForRow:(NSInteger)row {
     
     NSString *widgetClass = [self.fields objectAtIndex:row];
     self.currentCell = [BHNIBTools cachedTableCellWithClass:widgetClass tableView:self.formVC.tableView];
+    self.currentRow = row;
     
-    if (self.configureCellForRowBlock) {
-        self.configureCellForRowBlock(self.currentCell, row);
+    self.isFirstRow = row == 0;
+    self.isLastRow  = row == [self.fields count]-1;
+    
+    if (self.configureRow) {
+        self.configureRow();
     }
     
     return self.currentCell;
@@ -68,26 +81,32 @@
 
 - (void)didTapRow:(NSInteger)row {
     
-    NSString *widgetClass = [self.fields objectAtIndex:row];
-    id cell = [BHNIBTools cachedTableCellWithClass:widgetClass tableView:self.formVC.tableView];
+    self.currentCell = [self.formVC.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:self.sectionIndex]];
+    self.currentRow = row;
     
-    if (self.didTapCellInSectionBlock) {
-        self.didTapCellInSectionBlock(cell, row);
+    self.isFirstRow = row == 0;
+    self.isLastRow  = row == [self.fields count]-1;
+    
+    if (self.didTapRow) {
+        self.didTapRow();
     }
 }
 
 - (void)didSwipeDeleteRow:(NSInteger)row {
     
-    NSString *widgetClass = [self.fields objectAtIndex:row];
-    id cell = [BHNIBTools cachedTableCellWithClass:widgetClass tableView:self.formVC.tableView];
+    self.currentCell    = [self.formVC.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:self.sectionIndex]];
+    self.currentRow = row;
     
-    if (self.didSwipeDeleteCellInSectionBlock) {
-        self.didSwipeDeleteCellInSectionBlock(cell, row);
+    self.isFirstRow = row == 0;
+    self.isLastRow  = row == [self.fields count]-1;
+    
+    if (self.didSwipeToDeleteRow) {
+        self.didSwipeToDeleteRow();
     }    
 }
 
 - (BOOL)isEditable {
-    return (self.didSwipeDeleteCellInSectionBlock != nil);
+    return (self.didSwipeToDeleteRow != nil);
 }
 
 @end

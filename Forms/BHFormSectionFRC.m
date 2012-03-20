@@ -17,17 +17,17 @@
 @synthesize configureCellForRowBlock;
 @synthesize didTapCellInSectionBlock;
 @synthesize didSwipeDeleteCellInSectionBlock;
+@synthesize currentObject;
 
-+ (BHFormSectionFRC*)formSectionForFormVC:(BHFormViewController*)vc widgetClass:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1 {
++ (BHFormSectionFRC*)formSectionForFormVC:(BHBlockTableViewController*)vc widgetClass:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1 {
     return [[[BHFormSectionFRC alloc] initWithFormVC:vc widgetClass:widgetClass1 frc:frc1] autorelease];
 }
 
-- (id)initWithFormVC:(BHFormViewController*)formVC1 widgetClass:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1 {
+- (id)initWithFormVC:(BHBlockTableViewController*)formVC1 widgetClass:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1 {
     
     if ((self = [super initWithFormVC:formVC1])) {
         self.widgetClass = widgetClass1;
         self.frc = frc1;
-//        self.frc.delegate = self;
     }
     
     return self;
@@ -46,14 +46,19 @@
         return self.defaultRowHeight;
     }
     
-    id obj = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];        
-    UITableViewCell *dummyCell = [self.formVC cachedCell:self.widgetClass];
+    self.dummyCell      = [self.formVC cachedCell:self.widgetClass];
     
     if (self.heightForRowBlock) {
-        return self.heightForRowBlock(dummyCell, obj, row);
+        self.currentObject  = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];        
+        self.currentRow     = row;
+
+        self.isFirstRow = row == 0;
+        self.isLastRow  = row == [self rowCount]-1;
+        
+        return self.heightForRowBlock();
     }
     
-    return dummyCell.frame.size.height;
+    return ((UIView*)self.dummyCell).frame.size.height;
 }
 
 - (id)internalCellForRow:(NSInteger)row {
@@ -61,34 +66,50 @@
     self.currentCell = [BHNIBTools cachedTableCellWithClass:self.widgetClass tableView:self.formVC.tableView];
     
     if (self.configureCellForRowBlock) {
-        id obj = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
-        self.configureCellForRowBlock(self.currentCell, obj, row);
+        
+        self.currentObject  = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+        self.currentRow     = row;
+
+        self.isFirstRow = row == 0;
+        self.isLastRow  = row == [self rowCount]-1;
+        
+        self.configureCellForRowBlock();
     }
     
     return self.currentCell;
 }
 
 - (void)didTapRow:(NSInteger)row {
-    
-    id cell = [BHNIBTools cachedTableCellWithClass:self.widgetClass tableView:self.formVC.tableView];
-    id obj = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
-    
+        
     if (self.didTapCellInSectionBlock) {
-        self.didTapCellInSectionBlock(cell, obj, row);
+        
+        self.currentCell    = [self.formVC.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:self.sectionIndex]];
+        self.currentObject  = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+        self.currentRow     = row;
+
+        self.isFirstRow = row == 0;
+        self.isLastRow  = row == [self rowCount]-1;
+        
+        self.didTapCellInSectionBlock();
     }
 }
 
 - (void)didSwipeDeleteRow:(NSInteger)row {
-    
-    id cell = [BHNIBTools cachedTableCellWithClass:self.widgetClass tableView:self.formVC.tableView];
-    id obj = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
-    
+        
     if (self.didSwipeDeleteCellInSectionBlock) {
-        self.didSwipeDeleteCellInSectionBlock(cell, obj, row);
-    }    
-    
-    [self.frc performFetch:nil];
-    [self.formVC.tableView reloadData];
+        
+        self.currentCell    = [self.formVC.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:self.sectionIndex]];
+        self.currentObject  = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+        self.currentRow     = row;
+        
+        self.isFirstRow = row == 0;
+        self.isLastRow  = row == [self rowCount]-1;
+        
+        self.didSwipeDeleteCellInSectionBlock();
+        
+        [self.frc performFetch:nil];
+        [self.formVC.tableView reloadData];        
+    }        
 }
 
 - (BOOL)isEditable {
