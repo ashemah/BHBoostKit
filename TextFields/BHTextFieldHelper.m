@@ -27,7 +27,12 @@
 @synthesize hasChangedButton;
 @synthesize dataDict;
 @synthesize numbersPunctCharSet;
+
 @synthesize fieldDataDidChangeBlock;
+@synthesize fieldDidBeginEditing;
+@synthesize fieldDidEndEditing;
+@synthesize fieldShouldReturn;
+
 @synthesize infoForKey;
 @synthesize tableView;
 
@@ -252,7 +257,13 @@
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     
     BHTextFieldHelperInfo *i = [self infoForTextField:textField];
-        
+    
+    if (self.fieldShouldReturn) {
+        if (self.fieldShouldReturn(i->key) == NO) {
+            return NO;
+        }
+    }
+    
     UIView *nextResponder = [self findNextResponder:i->tabOrder];
     
     int offs = 0;
@@ -288,7 +299,7 @@
         [textField resignFirstResponder];
     }
     
-    return NO;
+    return YES;
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
@@ -300,11 +311,20 @@
     else {
         textField.returnKeyType = UIReturnKeyNext;
     }
+    
+    if (self.fieldDidBeginEditing) {
+        self.fieldDidBeginEditing(i->key);
+    }
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
     BHTextFieldHelperInfo *i = [self infoForTextField:textField];    
     [self.dataDict setObject:textField.text forKey:i->key];
+    
+    if (self.fieldDidEndEditing) {
+        self.fieldDidEndEditing(i->key);
+    }
+    
 }
 
 - (void)textFieldDidChange:(id)sender {

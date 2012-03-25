@@ -31,6 +31,9 @@ typedef enum {
 @end
 
 typedef void (^FieldDataDidChangeBlock)(NSString *key, NSString* text);
+typedef void (^FieldDidBeginEditing)(NSString *key);
+typedef void (^FieldDidEndEditing)(NSString *key);
+typedef BOOL (^FieldShouldReturn)(NSString *key);
 
 @interface BHTextFieldHelper : NSObject<UITextFieldDelegate, UITextViewDelegate> {
     NSMutableDictionary *fields;
@@ -53,7 +56,12 @@ typedef void (^FieldDataDidChangeBlock)(NSString *key, NSString* text);
 @property (nonatomic, retain) NSCharacterSet *numbersPunctCharSet;
 @property (nonatomic, assign) BOOL hasChanged;
 @property (nonatomic, retain) UIBarButtonItem *hasChangedButton;
+
 @property (readwrite, copy) FieldDataDidChangeBlock fieldDataDidChangeBlock;
+@property (readwrite, copy) FieldDidBeginEditing fieldDidBeginEditing;
+@property (readwrite, copy) FieldDidEndEditing fieldDidEndEditing;
+@property (readwrite, copy) FieldShouldReturn fieldShouldReturn;
+
 @property (nonatomic, retain) UITableView *tableView;
 
 + (BHTextFieldHelper*)textFieldHelper;
@@ -74,5 +82,4 @@ typedef void (^FieldDataDidChangeBlock)(NSString *key, NSString* text);
 - (id)dataForKey:(NSString *)key;
 
 - (BOOL)hasDataForKey:(NSString*)key;
-
 @end
