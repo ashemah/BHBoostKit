@@ -21,7 +21,7 @@
 @end
 
 ///
-@interface BHBlockTableViewController : UIViewController<UITableViewDelegate, UITableViewDataSource> {
+@interface BHBlockTableViewController : UIViewController<UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate> {
 }
 
 @property (nonatomic, retain) IBOutlet UITableView *tableView;

@@ -28,12 +28,14 @@
 @synthesize isLastRow;
 @synthesize isFirstRow;
 @synthesize lastTappedRow;
+@synthesize showHeader;
 
 - (id)initWithFormVC:(BHBlockTableViewController*)formVC1 {
     if ((self = [super init])) {
 
         self.formVC = formVC1;
         self.isHidden = NO;
+        self.showHeader = YES;
         [self.formVC addSection:self];
         
         if (self.emptyCellClass) {

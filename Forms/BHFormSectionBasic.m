@@ -57,7 +57,7 @@
     self.isLastRow  = row == [self.fields count]-1;
     
     if (self.heightForRow) {
-        return self.heightForRow();
+        return self.heightForRow(row);
     }
     
     return ((UIView*)self.dummyCell).frame.size.height;
@@ -73,7 +73,7 @@
     self.isLastRow  = row == [self.fields count]-1;
     
     if (self.configureRow) {
-        self.configureRow();
+        self.configureRow(row);
     }
     
     return self.currentCell;
@@ -88,7 +88,7 @@
     self.isLastRow  = row == [self.fields count]-1;
     
     if (self.didTapRow) {
-        self.didTapRow();
+        self.didTapRow(row);
     }
 }
 
@@ -101,7 +101,7 @@
     self.isLastRow  = row == [self.fields count]-1;
     
     if (self.didSwipeToDeleteRow) {
-        self.didSwipeToDeleteRow();
+        self.didSwipeToDeleteRow(row);
     }    
 }
 

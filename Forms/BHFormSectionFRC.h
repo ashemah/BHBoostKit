@@ -15,10 +15,10 @@
 
 @property (nonatomic, retain) NSFetchedResultsController *frc;
 @property (nonatomic, retain) NSString *widgetClass;
-@property (readwrite, copy) HeightForFRCRowBlock heightForRowBlock;
-@property (readwrite, copy) ConfigureCellForFRCRowBlock configureCellForRowBlock;
-@property (readwrite, copy) DidTapCellInFRCSectionBlock didTapCellInSectionBlock;
-@property (readwrite, copy) DidSwipeDeleteCellInFRCSectionBlock didSwipeDeleteCellInSectionBlock;
+@property (readwrite, copy) HeightForFRCRowBlock heightForRow;
+@property (readwrite, copy) ConfigureCellForFRCRowBlock configureRow;
+@property (readwrite, copy) DidTapCellInFRCSectionBlock didTapRow;
+@property (readwrite, copy) DidSwipeDeleteCellInFRCSectionBlock didSwipeToDeleteRow;
 @property (nonatomic, retain) id currentObject;
 
 - (id)initWithFormVC:(BHBlockTableViewController*)formVC1 widgetClass:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1;

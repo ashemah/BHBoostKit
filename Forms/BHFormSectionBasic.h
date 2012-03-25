@@ -16,8 +16,8 @@
 @property (nonatomic, retain) NSMutableArray *fields;
 @property (readwrite, copy) HeightForCellBlock heightForRow;
 @property (readwrite, copy) ConfigureCellBlock configureRow;
-@property (readwrite, copy) DidTapCellInSectionBlock didTapRow;
-@property (readwrite, copy) DidSwipeDeleteCellInSectionBlock didSwipeToDeleteRow;
+@property (readwrite, copy) didTapRow didTapRow;
+@property (readwrite, copy) didSwipeToDeleteRow didSwipeToDeleteRow;
 
 - (void)addCellFromNIBWithName:(NSString*)widgetClass;
 + (BHFormSectionBasic*)formSectionForFormVC:(BHBlockTableViewController*)vc;

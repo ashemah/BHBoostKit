@@ -9,15 +9,15 @@
 #import <UIKit/UIKit.h>
 #import "BHFormViewController.h"
 
-typedef CGFloat (^HeightForCellBlock)();
-typedef void (^ConfigureCellBlock)();
-typedef void (^DidTapCellInSectionBlock)();
-typedef void (^DidSwipeDeleteCellInSectionBlock)();
+typedef CGFloat (^HeightForCellBlock)(NSInteger row);
+typedef void (^ConfigureCellBlock)(NSInteger row);
+typedef void (^didTapRow)(NSInteger row);
+typedef void (^didSwipeToDeleteRow)(NSInteger row);
 
-typedef CGFloat (^HeightForFRCRowBlock)();
-typedef void (^ConfigureCellForFRCRowBlock)();
-typedef void (^DidTapCellInFRCSectionBlock)();
-typedef void (^DidSwipeDeleteCellInFRCSectionBlock)();
+typedef CGFloat (^HeightForFRCRowBlock)(NSInteger row);
+typedef void (^ConfigureCellForFRCRowBlock)(NSInteger row);
+typedef void (^DidTapCellInFRCSectionBlock)(NSInteger row);
+typedef void (^DidSwipeDeleteCellInFRCSectionBlock)(NSInteger row);
 
 typedef BOOL (^IsHiddenBlock)();
 
@@ -45,6 +45,7 @@ typedef BOOL (^IsHiddenBlock)();
 @property (nonatomic, assign) BOOL isLastRow;
 @property (nonatomic, assign) BOOL isFirstRow;
 @property (nonatomic, assign) NSInteger lastTappedRow;
+@property (nonatomic, assign) BOOL showHeader;
 
 - (id)initWithFormVC:(BHBlockTableViewController*)formVC;
 

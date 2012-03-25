@@ -13,10 +13,10 @@
 
 @synthesize frc;
 @synthesize widgetClass;
-@synthesize heightForRowBlock;
-@synthesize configureCellForRowBlock;
-@synthesize didTapCellInSectionBlock;
-@synthesize didSwipeDeleteCellInSectionBlock;
+@synthesize heightForRow;
+@synthesize configureRow;
+@synthesize didTapRow;
+@synthesize didSwipeToDeleteRow;
 @synthesize currentObject;
 
 + (BHFormSectionFRC*)formSectionForFormVC:(BHBlockTableViewController*)vc widgetClass:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1 {
@@ -48,14 +48,14 @@
     
     self.dummyCell      = [self.formVC cachedCell:self.widgetClass];
     
-    if (self.heightForRowBlock) {
+    if (self.heightForRow) {
         self.currentObject  = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];        
         self.currentRow     = row;
 
         self.isFirstRow = row == 0;
         self.isLastRow  = row == [self rowCount]-1;
         
-        return self.heightForRowBlock();
+        return self.heightForRow(row);
     }
     
     return ((UIView*)self.dummyCell).frame.size.height;
@@ -65,7 +65,7 @@
     
     self.currentCell = [BHNIBTools cachedTableCellWithClass:self.widgetClass tableView:self.formVC.tableView];
     
-    if (self.configureCellForRowBlock) {
+    if (self.configureRow) {
         
         self.currentObject  = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
         self.currentRow     = row;
@@ -73,7 +73,7 @@
         self.isFirstRow = row == 0;
         self.isLastRow  = row == [self rowCount]-1;
         
-        self.configureCellForRowBlock();
+        self.configureRow(row);
     }
     
     return self.currentCell;
@@ -81,7 +81,7 @@
 
 - (void)didTapRow:(NSInteger)row {
         
-    if (self.didTapCellInSectionBlock) {
+    if (self.didTapRow) {
         
         self.currentCell    = [self.formVC.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:self.sectionIndex]];
         self.currentObject  = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
@@ -90,13 +90,13 @@
         self.isFirstRow = row == 0;
         self.isLastRow  = row == [self rowCount]-1;
         
-        self.didTapCellInSectionBlock();
+        self.didTapRow(row);
     }
 }
 
 - (void)didSwipeDeleteRow:(NSInteger)row {
         
-    if (self.didSwipeDeleteCellInSectionBlock) {
+    if (self.didSwipeToDeleteRow) {
         
         self.currentCell    = [self.formVC.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:self.sectionIndex]];
         self.currentObject  = [self.frc objectAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
@@ -105,7 +105,7 @@
         self.isFirstRow = row == 0;
         self.isLastRow  = row == [self rowCount]-1;
         
-        self.didSwipeDeleteCellInSectionBlock();
+        self.didSwipeToDeleteRow(row);
         
         [self.frc performFetch:nil];
         [self.formVC.tableView reloadData];        
@@ -113,62 +113,8 @@
 }
 
 - (BOOL)isEditable {
-    return (self.didSwipeDeleteCellInSectionBlock != nil);
+    return (self.didSwipeToDeleteRow != nil);
 }
 
-/*
-- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
-    // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
-    [self.formVC.tableView beginUpdates];
-}
-
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath {
-    
-    UITableView *tableView1 = self.formVC.tableView;
-    
-    switch(type) {
-            
-        case NSFetchedResultsChangeInsert:
-            [tableView1 insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeDelete:
-            [tableView1 deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeUpdate:
-            //            [self configureCell:[tableView1 cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
-            break;
-            
-        case NSFetchedResultsChangeMove:
-            [tableView1 deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            // Reloading the section inserts a new row and ensures that titles are updated appropriately.
-            [tableView1 reloadSections:[NSIndexSet indexSetWithIndex:newIndexPath.section] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-    }
-}
-
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
-    
-    switch(type) {
-            
-        case NSFetchedResultsChangeInsert:
-            [self.formVC.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeDelete:
-            [self.formVC.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-    }
-}
-
-
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
-    // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
-    [self.formVC.tableView endUpdates];
-}
-*/
 
 @end
