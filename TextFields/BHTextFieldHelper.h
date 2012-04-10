@@ -7,28 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-typedef enum {
-    BHTextFieldHelperField_Text,
-    BHTextFieldHelperField_Numbers,
-    BHTextFieldHelperField_EmailAddress,
-    BHTextFieldHelperField_PhoneNumber,
-    BHTextFieldHelperField_Currency,
-    BHTextFieldHelperField_Custom
-} BHTextFieldHelperField;
-
-@interface BHTextFieldHelperInfo : NSObject {
-@public
-    NSInteger tabOrder;
-    BHTextFieldHelperField type;
-    NSString *title;
-    NSString *key;
-    NSString *text;
-}
-
-@property (nonatomic, retain) UIView *field;
-
-@end
+#import "BHTextFieldHelperInfo.h"
 
 typedef void (^FieldDataDidChangeBlock)(NSString *key, NSString* text);
 typedef void (^FieldDidBeginEditing)(NSString *key);
@@ -67,8 +46,9 @@ typedef BOOL (^FieldShouldReturn)(NSString *key);
 + (BHTextFieldHelper*)textFieldHelper;
 
 - (void)resetHasChanged;
-- (void)addTextField:(UITextField*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type;
-- (void)addTextView:(UITextView*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type;
+- (BHTextFieldHelperInfo*)addTextField:(UITextField*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type;
+- (BHTextFieldHelperInfo*)addTextView:(UITextView*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type;
+- (BHTextFieldHelperInfo*)addTextField:(UITextField*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type presenterParser:(BHTextFieldPresenterParser*)presenterParser;
 - (BHTextFieldHelperInfo*)infoForTextField:(UITextField*)field;
 - (BHTextFieldHelperInfo*)infoForTextView:(UITextView*)field;
 
@@ -82,4 +62,7 @@ typedef BOOL (^FieldShouldReturn)(NSString *key);
 - (id)dataForKey:(NSString *)key;
 
 - (BOOL)hasDataForKey:(NSString*)key;
+- (void)setValuesFromRawData:(BHTextFieldHelperInfo*)fieldInfo rawString:(NSString*)rawString;
+- (void)setFieldFromDataValue:(BHTextFieldHelperInfo*)fieldInfo dataValue:(NSString*)data;
+
 @end

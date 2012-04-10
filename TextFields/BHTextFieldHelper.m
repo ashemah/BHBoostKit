@@ -8,14 +8,6 @@
 
 #import "BHTextFieldHelper.h"
 
-@implementation BHTextFieldHelperInfo
-@synthesize field;
-- (void)dealloc {
-    self.field = nil;
-    [super dealloc];
-}
-@end
-
 @implementation BHTextFieldHelper
 
 @synthesize fields;
@@ -73,8 +65,68 @@
     self.hasChanged = NO;
 }
 
-- (void)addTextField:(UITextField*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type {
+- (BHTextFieldHelperInfo*)addTextField:(UITextField*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type presenterParser:(BHTextFieldPresenterParser*)presenterParser {
+    NSAssert(field, @"Invalid field! %s", key);
+    
+    BHTextFieldHelperInfo *i = [self.infoForKey objectForKey:key];
+    
+    if (!i) {
+        i = [[[BHTextFieldHelperInfo alloc] init] autorelease];
+    }
+    
+    i.field    = field;
+    i->tabOrder = [self.info count];
+    i->type     = type;
+    i->title    = title;
+    i->key      = key;
+    i.presenterParser = presenterParser;
+    
+    field.delegate = self;    
+    field.placeholder = title;
+	[field addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];        
+    
+    field.autocapitalizationType = UITextAutocapitalizationTypeWords;
+    
+    switch (type) {
+        case BHTextFieldHelperField_Numbers: {
+            field.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+        } break;
+            
+        case BHTextFieldHelperField_EmailAddress: {
+            field.keyboardType = UIKeyboardTypeEmailAddress;
+            field.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        } break;
+            
+        case BHTextFieldHelperField_PhoneNumber: {
+            field.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+        } break;
+            
+        case BHTextFieldHelperField_Currency: {
+            field.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+        } break;
+            
+        default: {
+            
+        }
+    }
+    
+    [self.infoForKey setObject:i forKey:key];
+    [self.fields setObject:field forKey:key];
+    [self.info setObject:i forKey:[NSNumber numberWithInteger:[field hash]]];
         
+    [self setFieldFromDataValue:i dataValue:[self.dataDict objectForKey:key]];    
+    //    field.text = [self textForKey:key];
+    
+    return i;    
+}
+
+- (BHTextFieldHelperInfo*)addTextField:(UITextField*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type {
+    return [self addTextField:field title:title key:key type:type presenterParser:nil];
+}
+
+
+- (BHTextFieldHelperInfo*)addTextView:(UITextView*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type {
+
     NSAssert(field, @"Invalid field! %s", key);
     
     BHTextFieldHelperInfo *i = [self.infoForKey objectForKey:key];
@@ -89,58 +141,15 @@
     i->title    = title;
     i->key      = key;
     
-    field.delegate = self;    
-    field.placeholder = title;
-	[field addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];        
-
-    field.autocapitalizationType = UITextAutocapitalizationTypeWords;
-    
-    switch (type) {
-        case BHTextFieldHelperField_Numbers: {
-            field.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
-        } break;
-
-        case BHTextFieldHelperField_EmailAddress: {
-            field.keyboardType = UIKeyboardTypeEmailAddress;
-            field.autocapitalizationType = UITextAutocapitalizationTypeNone;
-        } break;
-
-        case BHTextFieldHelperField_PhoneNumber: {
-            field.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
-        } break;
-
-        case BHTextFieldHelperField_Currency: {
-            field.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
-        } break;
-            
-        default: {
-            
-        }
-    }
-    
-    [self.infoForKey setObject:i forKey:key];
-    [self.fields setObject:field forKey:key];
-    [self.info setObject:i forKey:[NSNumber numberWithInteger:[field hash]]];
-    
-    field.text = [self textForKey:key];
-}
-
-- (void)addTextView:(UITextView*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type {
-
-    BHTextFieldHelperInfo *i = [[[BHTextFieldHelperInfo alloc] init] autorelease];
-    
-    i.field    = field;
-    i->tabOrder = [self.info count];
-    i->type     = type;
-    i->title    = title;
-    i->key      = key;
-    
     field.delegate = self;
     
     [self.fields setObject:field forKey:key];
     [self.info setObject:i forKey:[NSNumber numberWithInteger:[field hash]]];
     
-    field.text = [self.dataDict objectForKey:key];    
+    [self setFieldFromDataValue:i dataValue:[self.dataDict objectForKey:key]];
+//    field.text = [self.dataDict objectForKey:key];    
+    
+    return i;
 }
 
 - (BHTextFieldHelperInfo*)infoForTextField:(UITextField*)field {
@@ -154,6 +163,11 @@
 }
 
 - (void)setData:(id)data forKey:(NSString *)key {
+    
+    if (data == nil) {
+        return;
+    }
+    
     [self.dataDict setObject:data forKey:key];
 }
 
@@ -305,6 +319,8 @@
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
     BHTextFieldHelperInfo *i = [self infoForTextField:textField];
     
+    [self setDataFromRawFieldValue:i rawString:textField.text];
+    
     if (i->tabOrder == [self.info count]) {
         textField.returnKeyType = UIReturnKeyDone;
     }
@@ -318,17 +334,56 @@
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
-    BHTextFieldHelperInfo *i = [self infoForTextField:textField];    
-    [self.dataDict setObject:textField.text forKey:i->key];
+    BHTextFieldHelperInfo *i = [self infoForTextField:textField];
     
+    [self setDataFromRawFieldValue:i rawString:textField.text];
+        
     if (self.fieldDidEndEditing) {
         self.fieldDidEndEditing(i->key);
     }
+   
+}
+
+- (void)setFieldFromDataValue:(BHTextFieldHelperInfo*)fieldInfo dataValue:(NSString*)data {
+
+    NSString *uiString = nil;
+    
+    if (fieldInfo->presenterParser) {
+        
+        uiString    = [fieldInfo.presenterParser transformFromData:data];
+        uiString    = [fieldInfo.presenterParser present:uiString];
+    }
+    else {
+        uiString    = data;
+    }
+    
+    [fieldInfo.field setText: uiString];    
+}
+
+- (void)setDataFromRawFieldValue:(BHTextFieldHelperInfo*)fieldInfo rawString:(NSString*)rawString {
+
+    NSString *dataString = nil;
+    NSString *uiString = nil;
+    
+    if (fieldInfo->presenterParser) {
+        dataString  = [fieldInfo.presenterParser parse:rawString];             // Parse the string into a clean form
+        dataString  = [fieldInfo.presenterParser transformToData:dataString];  // Now in transformed data format
+
+        uiString    = [fieldInfo.presenterParser present:rawString];
+    }
+    else {
+        dataString  = rawString;
+        uiString    = rawString;
+    }
+    
+    [fieldInfo.field setText: uiString];
+    [self.dataDict setObject:dataString forKey:fieldInfo->key];
     
 }
 
 - (void)textFieldDidChange:(id)sender {
     BHTextFieldHelperInfo *i = [self infoForTextField:sender];    
+    
     [self.dataDict setObject:[sender text] forKey:i->key];   
     
     if (self.fieldDataDidChangeBlock) {
