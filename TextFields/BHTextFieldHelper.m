@@ -92,9 +92,12 @@
             field.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
         } break;
             
-        case BHTextFieldHelperField_EmailAddress: {
-            field.keyboardType = UIKeyboardTypeEmailAddress;
-            field.autocapitalizationType = UITextAutocapitalizationTypeNone;
+        case BHTextFieldHelperField_EmailAddress:
+        case BHTextFieldHelperField_ReadOnlyEmailAddress: {
+            field.keyboardType              = UIKeyboardTypeEmailAddress;
+            field.autocapitalizationType    = UITextAutocapitalizationTypeNone;            
+            field.enabled                   = (type != BHTextFieldHelperField_ReadOnlyEmailAddress);
+            
         } break;
             
         case BHTextFieldHelperField_PhoneNumber: {
@@ -366,10 +369,10 @@
     NSString *uiString = nil;
     
     if (fieldInfo->presenterParser) {
-        dataString  = [fieldInfo.presenterParser parse:rawString];             // Parse the string into a clean form
-        dataString  = [fieldInfo.presenterParser transformToData:dataString];  // Now in transformed data format
+        NSString *cleanString  = [fieldInfo.presenterParser parse:rawString];             // Parse the string into a clean form
+        dataString  = [fieldInfo.presenterParser transformToData:cleanString];  // Now in transformed data format
 
-        uiString    = [fieldInfo.presenterParser present:rawString];
+        uiString    = [fieldInfo.presenterParser present:cleanString];
     }
     else {
         dataString  = rawString;
