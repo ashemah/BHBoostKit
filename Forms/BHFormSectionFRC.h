@@ -19,7 +19,6 @@
 @property (readwrite, copy) ConfigureCellForFRCRowBlock configureRow;
 @property (readwrite, copy) DidTapCellInFRCSectionBlock didTapRow;
 @property (readwrite, copy) DidSwipeDeleteCellInFRCSectionBlock didSwipeToDeleteRow;
-@property (nonatomic, retain) id currentObject;
 
 - (id)initWithFormVC:(BHBlockTableViewController*)formVC1 widgetClass:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1;
 + (BHFormSectionFRC*)formSectionForFormVC:(BHBlockTableViewController*)vc widgetClass:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1;

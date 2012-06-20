@@ -17,7 +17,6 @@
 @synthesize configureRow;
 @synthesize didTapRow;
 @synthesize didSwipeToDeleteRow;
-@synthesize currentObject;
 
 + (BHFormSectionFRC*)formSectionForFormVC:(BHBlockTableViewController*)vc widgetClass:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1 {
     return [[[BHFormSectionFRC alloc] initWithFormVC:vc widgetClass:widgetClass1 frc:frc1] autorelease];
@@ -37,6 +36,13 @@
 
     id <NSFetchedResultsSectionInfo> sectInfo = [[self.frc sections] objectAtIndex:0];
     NSInteger num = [sectInfo numberOfObjects];
+    
+    self.isEmpty = (num == 0);
+    
+    if (num != _heightCacheSize) {
+        [self buildCellInfoCacheOfSize:num];
+    }
+    
     return num;
 }
 

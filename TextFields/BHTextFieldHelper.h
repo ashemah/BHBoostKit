@@ -62,7 +62,7 @@ typedef BOOL (^FieldShouldReturn)(NSString *key);
 - (id)dataForKey:(NSString *)key;
 
 - (BOOL)hasDataForKey:(NSString*)key;
-- (void)setValuesFromRawData:(BHTextFieldHelperInfo*)fieldInfo rawString:(NSString*)rawString;
+//- (void)setValuesFromRawData:(BHTextFieldHelperInfo*)fieldInfo rawString:(NSString*)rawString;
 - (void)setFieldFromDataValue:(BHTextFieldHelperInfo*)fieldInfo dataValue:(NSString*)data;
-
+- (void)setDataFromRawFieldValue:(BHTextFieldHelperInfo*)fieldInfo rawString:(NSString*)rawString;
 @end

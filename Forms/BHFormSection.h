@@ -26,6 +26,7 @@ typedef BOOL (^IsHiddenBlock)();
     BOOL _isOpen;
     BOOL _isEmpty;    
     NSInteger _emptyRowCount;
+    NSInteger _heightCacheSize;
 }
 
 @property (nonatomic, retain) UIView *headerView;
@@ -42,12 +43,26 @@ typedef BOOL (^IsHiddenBlock)();
 @property (nonatomic, retain) id dummyCell;
 @property (nonatomic, assign) NSInteger currentRow;
 @property (nonatomic, assign) NSUInteger sectionIndex;
+@property (nonatomic, assign) id currentObject;
 @property (nonatomic, assign) BOOL isLastRow;
 @property (nonatomic, assign) BOOL isFirstRow;
 @property (nonatomic, assign) NSInteger lastTappedRow;
 @property (nonatomic, assign) BOOL showHeader;
+@property (nonatomic, retain) NSMutableArray *heightCache;
+@property (nonatomic, retain) NSMutableDictionary *cellInfoCache;
+@property (nonatomic, assign) BOOL hideHeaderWhenEmpty;
 
 - (id)initWithFormVC:(BHBlockTableViewController*)formVC;
+
+- (BOOL)hasCachedHeightForRow:(NSInteger)row;
+
+- (CGFloat)cachedHeightForRow:(NSInteger)row;
+- (id)cachedObjectForRow:(NSInteger)row andKey:(NSString*)key;
+
+- (void)cacheHeight:(CGFloat)height forRow:(NSInteger)row;
+- (void)cacheObject:(id)object forRow:(NSInteger)row andKey:(NSString*)key;
+
+- (void)buildCellInfoCacheOfSize:(NSInteger)rowCount;
 
 - (NSInteger)rowCount;
 - (NSInteger)internalRowCount;
@@ -67,4 +82,5 @@ typedef BOOL (^IsHiddenBlock)();
 - (void)reload;
 - (void)reloadWithAnimation:(UITableViewRowAnimation)animation;
 - (void)singleSelectRow:(NSInteger)row usingAnimation:(UITableViewRowAnimation)animation;
+
 @end

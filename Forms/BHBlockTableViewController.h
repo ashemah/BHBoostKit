@@ -28,6 +28,8 @@
 @property (nonatomic, retain) NSMutableArray *sections;
 @property (nonatomic, retain) NSMutableArray *activeSections;
 @property (nonatomic, retain) NSMutableDictionary *cacheDict;
+@property (nonatomic, retain) BHFormSection *currentSection;
+@property (nonatomic, retain) NSMutableDictionary *tableCache;
 
 - (UITableViewCell*)cachedCell:(NSString*)cellClassName;
 + (UIView*)loadWidgetFromNIB:(NSString*)nibName;
@@ -38,4 +40,13 @@
 - (void)closeSectionAtIndex:(NSInteger)index;
 - (void)refreshForm;
 - (void)addSection:(BHFormSection*)section;
+
+- (id)currentCell;
+- (int)currentRow;
+- (id)currentObject;
+- (id)dummyCell;
+
+- (id)cachedObjectForKey:(NSString*)key;
+- (void)cacheObject:(id)object forKey:(NSString*)key;
+
 @end

@@ -39,7 +39,14 @@
 }
 
 - (NSInteger)rowCount {
-    return [self.fields count];
+    
+    NSInteger num = [self.fields count];
+    
+    if (num != _heightCacheSize) {
+        [self buildCellInfoCacheOfSize:num];
+    }
+
+    return num;
 }
 
 - (CGFloat)internalHeightForRow:(NSInteger)row {

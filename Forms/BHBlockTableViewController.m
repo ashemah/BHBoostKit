@@ -32,6 +32,16 @@
 @synthesize sections;
 @synthesize cacheDict;
 @synthesize activeSections;
+@synthesize currentSection;
+@synthesize tableCache;
+
+- (id)cachedObjectForKey:(NSString*)key {
+    return [self.tableCache objectForKey:key];
+}
+
+- (void)cacheObject:(id)object forKey:(NSString*)key {
+    [self.tableCache setObject:object forKey:key];
+}
 
 - (void)addSection:(BHFormSection*)section {
     [self.sections addObject:section];
@@ -97,6 +107,7 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     self.sections = [NSMutableArray array];
+    self.tableCache = [NSMutableDictionary dictionary];
 }
 
 - (UITableViewCell*)cachedCell:(NSString*)cellClassName {
@@ -112,15 +123,15 @@
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:indexPath.section];
-    return [sectionInfo isEditable];
+    self.currentSection = [self.activeSections objectAtIndex:indexPath.section];
+    return [self.currentSection isEditable];
 }
 
 - (void)tableView:(UITableView *)tableView1 commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:indexPath.section];
+    self.currentSection = [self.activeSections objectAtIndex:indexPath.section];
     
     if (editingStyle == UITableViewCellEditingStyleDelete) {        
-        [sectionInfo didSwipeDeleteRow:indexPath.row];                
+        [self.currentSection didSwipeDeleteRow:indexPath.row];                
     }     
 }
 
@@ -129,17 +140,16 @@
 }
 
 - (int)tableView:(UITableView *)theTableView numberOfRowsInSection:(NSInteger)section {
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:section];
-    return [sectionInfo rowCount];
+    self.currentSection = [self.activeSections objectAtIndex:section];
+    return [self.currentSection rowCount];
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger section = indexPath.section;
     NSInteger row = indexPath.row;
     
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:section];
-    
-    return [sectionInfo heightForRow:row];   
+    self.currentSection = [self.activeSections objectAtIndex:section];    
+    return [self.currentSection heightForRow:row];   
 }
 
 - (UITableViewCell *)tableView:(UITableView *)theTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -147,37 +157,74 @@
     NSInteger section = indexPath.section;
     NSInteger row = indexPath.row;
     
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:section];
-    
-    return [sectionInfo cellForRow:row];
+    self.currentSection = [self.activeSections objectAtIndex:section];    
+    return [self.currentSection cellForRow:row];
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:section];
-    if (sectionInfo.headerView && sectionInfo.showHeader) {
-        return sectionInfo.headerView;
+    self.currentSection = [self.activeSections objectAtIndex:section];
+    if (self.currentSection.headerView && self.currentSection.showHeader) {
+        if ([self.currentSection isEmpty] && self.currentSection.hideHeaderWhenEmpty) {
+            return nil;
+        }
+        else {
+            return self.currentSection.headerView;
+        }
     }
     
-return nil;
+    return nil;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:section];
-    if (sectionInfo.headerView && sectionInfo.showHeader) {
-        return sectionInfo.headerView.frame.size.height;
+    self.currentSection = [self.activeSections objectAtIndex:section];
+    if (self.currentSection.headerView && self.currentSection.showHeader) {
+        if ([self.currentSection isEmpty] && self.currentSection.hideHeaderWhenEmpty) {
+            return 0;
+        }
+        else {
+            return self.currentSection.headerView.frame.size.height;
+        }
     }
     return 0;
 }
 
+- (id)currentCell {
+    return [self.currentSection currentCell];
+}
+
+- (id)dummyCell {
+    return [self.currentSection dummyCell];
+}
+
+- (int)currentRow {    
+    return [self.currentSection currentRow];
+}
+
+- (id)currentObject {    
+    return [self.currentSection currentObject];
+}
+
 #pragma mark -
 #pragma mark Table View Delegate Methods
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    CGFloat sectionHeaderHeight = 50;
+    
+    if (scrollView.contentOffset.y <= sectionHeaderHeight&&scrollView.contentOffset.y >= 0) {
+        scrollView.contentInset = UIEdgeInsetsMake(-scrollView.contentOffset.y, 0, 0, 0);
+        
+    } else if (scrollView.contentOffset.y>=sectionHeaderHeight) {
+        scrollView.contentInset = UIEdgeInsetsMake(-sectionHeaderHeight, 0, 0, 0);
+    }
+}
+
 - (void)tableView:(UITableView *)theTableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {	
 	[theTableView deselectRowAtIndexPath:indexPath animated:YES];	
     
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:indexPath.section];
-    [sectionInfo didTapRow:indexPath.row];
+    self.currentSection = [self.activeSections objectAtIndex:indexPath.section];
+    [self.currentSection didTapRow:indexPath.row];
 }
 
 #pragma mark -

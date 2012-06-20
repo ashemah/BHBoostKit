@@ -29,6 +29,6 @@ typedef enum {
     BHTextFieldPresenterParser *presenterParser;
 }
 
-@property (nonatomic, retain) UIView *field;
+@property (nonatomic, retain) id field;
 @property (nonatomic, retain) BHTextFieldPresenterParser *presenterParser;
 @end

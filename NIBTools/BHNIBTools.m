@@ -11,10 +11,11 @@
 @implementation BHNIBTools
 
 + (id)cachedTableCellWithClass:(NSString*)cellClass tableView:(UITableView*)tableView {
-    id cell = [tableView dequeueReusableCellWithIdentifier:cellClass];
+    UITableView *cell = [tableView dequeueReusableCellWithIdentifier:cellClass];
     
     if (!cell) {
         cell = [BHNIBTools loadFirstFromNIB:cellClass];
+//        cell.backgroundView.frame = cell.bounds;
     }
     
     NSAssert(cell, @"Invalid cellClass specified");

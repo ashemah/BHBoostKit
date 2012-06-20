@@ -29,13 +29,19 @@
 @synthesize isFirstRow;
 @synthesize lastTappedRow;
 @synthesize showHeader;
+@synthesize currentObject;
+@synthesize heightCache;
+@synthesize cellInfoCache;
+@synthesize hideHeaderWhenEmpty;
 
 - (id)initWithFormVC:(BHBlockTableViewController*)formVC1 {
     if ((self = [super init])) {
 
+        _heightCacheSize = 0;
         self.formVC = formVC1;
         self.isHidden = NO;
         self.showHeader = YES;
+        self.hideHeaderWhenEmpty = YES;
         [self.formVC addSection:self];
         
         if (self.emptyCellClass) {
@@ -59,6 +65,9 @@
 }
 
 - (void)setIsEmpty:(BOOL)isEmpty1 {
+    
+    BOOL doUpdate = _isEmpty != isEmpty1;
+    
     _isEmpty = isEmpty1;
     
     if (self.emptyCell) {
@@ -68,7 +77,9 @@
         _emptyRowCount = 0;
     }
     
-    [self.formVC updateSection:self];
+    if (doUpdate) {
+        [self.formVC updateSection:self];
+    }
 }
 
 - (BOOL)isEditable {
@@ -85,11 +96,48 @@
         return _emptyRowCount;
     }
     
-    return [self internalRowCount];
+    NSInteger rc = [self internalRowCount];
+        
+    return rc;
 }
 
 - (NSInteger)internalRowCount {
     return 0;
+}
+
+- (void)buildCellInfoCacheOfSize:(NSInteger)rowCount {
+    
+    self.heightCache = [NSMutableArray arrayWithCapacity:rowCount];
+    
+    for (int i=0; i < rowCount; i++) {
+        [self.heightCache addObject:[NSMutableDictionary dictionaryWithObject:[NSNumber numberWithFloat:-1] forKey:@"height"]];
+    }
+    
+    _heightCacheSize = rowCount;
+}
+
+- (void)cacheHeight:(CGFloat)height forRow:(NSInteger)row {
+    [self cacheObject:[NSNumber numberWithFloat:height] forRow:row andKey:@"height"];
+}
+
+- (void)cacheObject:(id)object forRow:(NSInteger)row andKey:(NSString*)key {
+    NSMutableDictionary *cellInfo = [self.heightCache objectAtIndex:row];
+    [cellInfo setObject:object forKey:key];
+}
+
+- (CGFloat)cachedHeightForRow:(NSInteger)row {
+    NSNumber *height = [self cachedObjectForRow:row andKey:@"height"];
+    return [height floatValue];
+}
+
+- (id)cachedObjectForRow:(NSInteger)row andKey:(NSString*)key {
+    NSMutableDictionary *cellInfo = [self.heightCache objectAtIndex:row];
+    return [cellInfo objectForKey:key];
+}
+
+- (BOOL)hasCachedHeightForRow:(NSInteger)row {
+    CGFloat height = [[self cachedObjectForRow:row andKey:@"height"] floatValue];
+    return height != -1;
 }
 
 - (CGFloat)heightForRow:(NSInteger)row {
