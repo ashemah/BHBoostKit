@@ -6,13 +6,13 @@
 //  Copyright (c) 2012 Boosted Human. All rights reserved.
 //
 
-#import "BHFormViewController.h"
-#import "BHFormSection.h"
+#import "BHFormTableViewController.h"
+#import "BHCompositeTableSection.h"
 #import "BHNIBTools.h"
 
 //-----------------------------------------------------------------------------------------------
 
-@implementation BHFormViewController
+@implementation BHFormTableViewController
 
 @synthesize textFieldHelper = _tfHelper;
 

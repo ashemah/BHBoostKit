@@ -6,27 +6,13 @@
 //  Copyright (c) 2012 Boosted Human. All rights reserved.
 //
 
-#import "BHBlockTableViewController.h"
-#import "BHFormSection.h"
+#import "BHCompositeTableViewController.h"
+#import "BHCompositeTableSection.h"
 #import "BHNIBTools.h"
-
-@implementation BHFormField
-@synthesize widgetClass;
-
-- (id)fieldWithWidgetClass:(NSString*)widgetClass1 {
-    
-    if ((self = [super init])) {
-        self.widgetClass = widgetClass1;
-    }
-    
-    return self;
-}
-
-@end
 
 //-----------------------------------------------------------------------------------------------
 
-@implementation BHBlockTableViewController
+@implementation BHCompositeTableViewController
 
 @synthesize tableView;
 @synthesize sections;
@@ -43,7 +29,7 @@
     [self.tableCache setObject:object forKey:key];
 }
 
-- (void)addSection:(BHFormSection*)section {
+- (void)addSection:(BHCompositeTableSection*)section {
     [self.sections addObject:section];
     [self updateActiveSections];
 }
@@ -61,7 +47,7 @@
     return [nib objectAtIndex:0];
 }
 
-- (void)updateSection:(BHFormSection*) section {
+- (void)updateSection:(BHCompositeTableSection*) section {
     NSInteger index = [self.activeSections indexOfObject:section];
     [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:index] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
@@ -71,7 +57,7 @@
     NSInteger sectionIndex = 0;
     NSMutableArray *array = [NSMutableArray array];
     
-    for (BHFormSection *section in self.sections) {
+    for (BHCompositeTableSection *section in self.sections) {
         
         if (!section.isHidden) {            
             section.sectionIndex = sectionIndex;
@@ -85,17 +71,17 @@
 }
 
 - (void)openSectionAtIndex:(NSInteger)index {
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:index];
+    BHCompositeTableSection *sectionInfo = [self.activeSections objectAtIndex:index];
     sectionInfo.isOpen = YES;
 }
 
 - (void)closeSectionAtIndex:(NSInteger)index {
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:index];
+    BHCompositeTableSection *sectionInfo = [self.activeSections objectAtIndex:index];
     sectionInfo.isOpen = YES;
 }
 
 - (void)toggleSectionAtIndex:(NSInteger)index {
-    BHFormSection *sectionInfo = [self.activeSections objectAtIndex:index];
+    BHCompositeTableSection *sectionInfo = [self.activeSections objectAtIndex:index];
     sectionInfo.isOpen = YES;
 }
 
@@ -121,6 +107,10 @@
     
     return cell;
 }
+
+//- (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
+//    return UITableViewCellEditingStyleNone;
+//}
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     self.currentSection = [self.activeSections objectAtIndex:indexPath.section];
@@ -190,22 +180,6 @@
     return 0;
 }
 
-- (id)currentCell {
-    return [self.currentSection currentCell];
-}
-
-- (id)dummyCell {
-    return [self.currentSection dummyCell];
-}
-
-- (int)currentRow {    
-    return [self.currentSection currentRow];
-}
-
-- (id)currentObject {    
-    return [self.currentSection currentObject];
-}
-
 #pragma mark -
 #pragma mark Table View Delegate Methods
 
@@ -225,62 +199,6 @@
     
     self.currentSection = [self.activeSections objectAtIndex:indexPath.section];
     [self.currentSection didTapRow:indexPath.row];
-}
-
-#pragma mark -
-#pragma mark Delegates
-
-- (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
-    // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
-    [self.tableView beginUpdates];
-}
-
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath {
-    
-    UITableView *tableView1 = self.tableView;
-    
-    switch(type) {
-            
-        case NSFetchedResultsChangeInsert:
-            [tableView1 insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeDelete:
-            [tableView1 deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeUpdate:
-            //            [self configureCell:[tableView1 cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
-            break;
-            
-        case NSFetchedResultsChangeMove:
-            [tableView1 deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-            // Reloading the section inserts a new row and ensures that titles are updated appropriately.
-            [tableView1 reloadSections:[NSIndexSet indexSetWithIndex:newIndexPath.section] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-    }
-}
-
-
-- (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
-    
-    switch(type) {
-            
-        case NSFetchedResultsChangeInsert:
-            [self.tableView insertSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-            
-        case NSFetchedResultsChangeDelete:
-            [self.tableView deleteSections:[NSIndexSet indexSetWithIndex:sectionIndex] withRowAnimation:UITableViewRowAnimationFade];
-            break;
-    }
-}
-
-
-- (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
-    // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
-    [self.tableView endUpdates];
 }
 
 - (void)didReceiveMemoryWarning

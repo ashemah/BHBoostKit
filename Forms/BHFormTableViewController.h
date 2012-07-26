@@ -8,9 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "BHTextFieldHelper.h"
-#import "BHBlockTableViewController.h"
+#import "BHCompositeTableViewController.h"
 
-@interface BHFormViewController : BHBlockTableViewController {
+@interface BHFormTableViewController : BHCompositeTableViewController {
     BHTextFieldHelper *_tfHelper;
 }
 

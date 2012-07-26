@@ -22,7 +22,7 @@ typedef BOOL (^FieldShouldReturn)(NSString *key);
     NSCharacterSet *currencyCharSet;
     UIBarButtonItem *hasChangedButton;
     NSMutableDictionary *dataDict;
-    BOOL hasChanged;    
+    BOOL hasChanged;
 }
 
 @property (nonatomic, retain) NSMutableDictionary *fields;
@@ -33,6 +33,7 @@ typedef BOOL (^FieldShouldReturn)(NSString *key);
 @property (nonatomic, retain) NSCharacterSet *numbersCharSet;
 @property (nonatomic, retain) NSCharacterSet *currencyCharSet;
 @property (nonatomic, retain) NSCharacterSet *numbersPunctCharSet;
+@property (nonatomic, retain) NSString *emailRegEx;
 @property (nonatomic, assign) BOOL hasChanged;
 @property (nonatomic, retain) UIBarButtonItem *hasChangedButton;
 
@@ -65,4 +66,8 @@ typedef BOOL (^FieldShouldReturn)(NSString *key);
 //- (void)setValuesFromRawData:(BHTextFieldHelperInfo*)fieldInfo rawString:(NSString*)rawString;
 - (void)setFieldFromDataValue:(BHTextFieldHelperInfo*)fieldInfo dataValue:(NSString*)data;
 - (void)setDataFromRawFieldValue:(BHTextFieldHelperInfo*)fieldInfo rawString:(NSString*)rawString;
+
+- (BOOL)isValid:(NSString*)fieldName;
+- (BOOL)validateField:(NSString*)fieldName forData:(NSString*)data;
+
 @end

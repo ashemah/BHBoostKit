@@ -6,10 +6,10 @@
 //  Copyright (c) 2012 Boosted Human. All rights reserved.
 //
 
-#import "BHFormSectionBasic.h"
+#import "BHCompositeTableSectionBasic.h"
 #import "BHNIBTools.h"
 
-@implementation BHFormSectionBasic
+@implementation BHCompositeTableSectionBasic
 
 @synthesize fields;
 @synthesize heightForRow;
@@ -17,13 +17,17 @@
 @synthesize didTapRow;
 @synthesize didSwipeToDeleteRow;
 
-+ (BHFormSectionBasic*)formSectionForFormVC:(BHBlockTableViewController*)vc {
-    return [[[BHFormSectionBasic alloc] initWithFormVC:vc] autorelease];
++ (BHCompositeTableSectionBasic*)sectionForViewController:(BHCompositeTableViewController*)vc {
+    return [[[BHCompositeTableSectionBasic alloc] initWithViewController:vc isHidden:NO] autorelease];
 }
 
-- (id)initWithFormVC:(BHFormViewController*)formVC1 {
++ (BHCompositeTableSectionBasic*)sectionForViewController:(BHCompositeTableViewController*)vc isHidden:(BOOL)isHidden {
+    return [[[BHCompositeTableSectionBasic alloc] initWithViewController:vc isHidden:isHidden] autorelease];
+}
+
+- (id)initWithViewController:(BHFormTableViewController*)formVC1 isHidden:(BOOL)isHidden {
     
-    if ((self = [super initWithFormVC:formVC1])) {
+    if ((self = [super initWithViewController:formVC1 isHidden:isHidden])) {
         self.fields = [NSMutableArray array];
     }
     
@@ -38,14 +42,10 @@
     [self.fields removeAllObjects];
 }
 
-- (NSInteger)rowCount {
+- (NSInteger)internalRowCount {
     
     NSInteger num = [self.fields count];
     
-    if (num != _heightCacheSize) {
-        [self buildCellInfoCacheOfSize:num];
-    }
-
     return num;
 }
 
@@ -62,9 +62,12 @@
 
     self.isFirstRow = row == 0;
     self.isLastRow  = row == [self.fields count]-1;
+    self.hasSingleRow = [self rowCount] == 1;
+    self.isFirstSection  = self.sectionIndex == 0;
+    self.isLastSection  = self.sectionIndex == [self.formVC.activeSections count]-1;
     
     if (self.heightForRow) {
-        return self.heightForRow(row);
+        return self.heightForRow(self);
     }
     
     return ((UIView*)self.dummyCell).frame.size.height;
@@ -72,15 +75,18 @@
 
 - (id)internalCellForRow:(NSInteger)row {
     
-    NSString *widgetClass = [self.fields objectAtIndex:row];
-    self.currentCell = [BHNIBTools cachedTableCellWithClass:widgetClass tableView:self.formVC.tableView];
+    NSString *widgetClass = [self.fields objectAtIndex:row];    
+    self.currentCell = [BHNIBTools cachedTableCellWithClass:widgetClass tableView:self.formVC.tableView isNewCell:&_currentCellIsNewCell];
     self.currentRow = row;
     
     self.isFirstRow = row == 0;
     self.isLastRow  = row == [self.fields count]-1;
+    self.hasSingleRow = [self rowCount] == 1;
+    self.isFirstSection  = self.sectionIndex == 0;
+    self.isLastSection  = self.sectionIndex == [self.formVC.activeSections count]-1;
     
     if (self.configureRow) {
-        self.configureRow(row);
+        self.configureRow(self);
     }
     
     return self.currentCell;
@@ -93,9 +99,12 @@
     
     self.isFirstRow = row == 0;
     self.isLastRow  = row == [self.fields count]-1;
+    self.hasSingleRow = [self rowCount] == 1;
+    self.isFirstSection  = self.sectionIndex == 0;
+    self.isLastSection  = self.sectionIndex == [self.formVC.activeSections count]-1;
     
     if (self.didTapRow) {
-        self.didTapRow(row);
+        self.didTapRow(self);
     }
 }
 
@@ -106,9 +115,12 @@
     
     self.isFirstRow = row == 0;
     self.isLastRow  = row == [self.fields count]-1;
+    self.hasSingleRow = [self rowCount] == 1;
+    self.isFirstSection  = self.sectionIndex == 0;
+    self.isLastSection  = self.sectionIndex == [self.formVC.activeSections count]-1;
     
     if (self.didSwipeToDeleteRow) {
-        self.didSwipeToDeleteRow(row);
+        self.didSwipeToDeleteRow(self);
     }    
 }
 

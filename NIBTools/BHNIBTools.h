@@ -10,7 +10,7 @@
 
 @interface BHNIBTools : NSObject
 
-+ (id)cachedTableCellWithClass:(NSString*)cellClass tableView:(UITableView*)tableView;
++ (id)cachedTableCellWithClass:(NSString*)cellClass tableView:(UITableView*)tableView isNewCell:(BOOL*)isNewCell;
 
 + (id)loadFirstFromNIB:(NSString*)nibName;
 + (id)loadFirstFromNIB:(NSString*)nibName owner:(UIView*)owner;

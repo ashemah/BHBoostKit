@@ -10,12 +10,15 @@
 
 @implementation BHNIBTools
 
-+ (id)cachedTableCellWithClass:(NSString*)cellClass tableView:(UITableView*)tableView {
++ (id)cachedTableCellWithClass:(NSString*)cellClass tableView:(UITableView*)tableView isNewCell:(BOOL*)isNewCell {
+    
     UITableView *cell = [tableView dequeueReusableCellWithIdentifier:cellClass];
     
+    *isNewCell = NO;
+    
     if (!cell) {
+        *isNewCell = YES;
         cell = [BHNIBTools loadFirstFromNIB:cellClass];
-//        cell.backgroundView.frame = cell.bounds;
     }
     
     NSAssert(cell, @"Invalid cellClass specified");

@@ -6,10 +6,10 @@
 //  Copyright (c) 2012 Boosted Human. All rights reserved.
 //
 
-#import "BHFormSection.h"
+#import "BHCompositeTableSection.h"
 #import "BHNIBTools.h"
 
-@implementation BHFormSection
+@implementation BHCompositeTableSection
 
 @synthesize headerView;
 @synthesize footerView;
@@ -27,6 +27,9 @@
 @synthesize currentRow;
 @synthesize isLastRow;
 @synthesize isFirstRow;
+@synthesize isLastSection;
+@synthesize isFirstSection;
+@synthesize hasSingleRow;
 @synthesize lastTappedRow;
 @synthesize showHeader;
 @synthesize currentObject;
@@ -34,18 +37,22 @@
 @synthesize cellInfoCache;
 @synthesize hideHeaderWhenEmpty;
 
-- (id)initWithFormVC:(BHBlockTableViewController*)formVC1 {
+- (id)initWithViewController:(BHCompositeTableViewController*)formVC1 isHidden:(BOOL)isHidden {
     if ((self = [super init])) {
 
         _heightCacheSize = 0;
         self.formVC = formVC1;
-        self.isHidden = NO;
+        self.isHidden = isHidden;
         self.showHeader = YES;
+        
+        _isOpen = YES;
+        
         self.hideHeaderWhenEmpty = YES;
         [self.formVC addSection:self];
         
         if (self.emptyCellClass) {
-            self.emptyCell = [BHNIBTools cachedTableCellWithClass:self.emptyCellClass tableView:self.formVC.tableView];
+            BOOL isNewCell;
+            self.emptyCell = [BHNIBTools cachedTableCellWithClass:self.emptyCellClass tableView:self.formVC.tableView isNewCell:&isNewCell];
         }
         
         self.lastTappedRow = -1;
@@ -68,16 +75,16 @@
     
     BOOL doUpdate = _isEmpty != isEmpty1;
     
-    _isEmpty = isEmpty1;
-    
-    if (self.emptyCell) {
-        _emptyRowCount = 1;
-    }
-    else {
-        _emptyRowCount = 0;
-    }
-    
     if (doUpdate) {
+        _isEmpty = isEmpty1;
+    
+        if (self.emptyCell) {
+            _emptyRowCount = 1;
+        }
+        else {
+            _emptyRowCount = 0;
+        }
+        
         [self.formVC updateSection:self];
     }
 }
@@ -91,13 +98,19 @@
     if (!_isOpen) {
         return 0;
     }
+        
+    NSInteger rc = [self internalRowCount];
+        
+    self.isEmpty = (rc == 0);
     
     if (_isEmpty) {        
         return _emptyRowCount;
     }
     
-    NSInteger rc = [self internalRowCount];
-        
+    if (rc != _heightCacheSize) {
+        [self buildCellInfoCacheOfSize:rc];
+    }
+    
     return rc;
 }
 
@@ -116,27 +129,29 @@
     _heightCacheSize = rowCount;
 }
 
-- (void)cacheHeight:(CGFloat)height forRow:(NSInteger)row {
-    [self cacheObject:[NSNumber numberWithFloat:height] forRow:row andKey:@"height"];
+- (CGFloat)cachedHeightForCurrentRow {
+    NSNumber *height = [self cachedObjectForCurrentRow:@"height"];
+    return [height floatValue];
 }
 
-- (void)cacheObject:(id)object forRow:(NSInteger)row andKey:(NSString*)key {
+- (void)cacheHeightForCurrentRow:(CGFloat)height {
+    [self cacheObjectForCurrentRow:[NSNumber numberWithFloat:height] forKey:@"height"];
+}
+
+- (void)cacheObjectForCurrentRow:(id)object forKey:(NSString*)key {
+    int row = [self currentRow];
     NSMutableDictionary *cellInfo = [self.heightCache objectAtIndex:row];
     [cellInfo setObject:object forKey:key];
 }
 
-- (CGFloat)cachedHeightForRow:(NSInteger)row {
-    NSNumber *height = [self cachedObjectForRow:row andKey:@"height"];
-    return [height floatValue];
-}
-
-- (id)cachedObjectForRow:(NSInteger)row andKey:(NSString*)key {
+- (id)cachedObjectForCurrentRow:(NSString*)key {
+    int row = [self currentRow];
     NSMutableDictionary *cellInfo = [self.heightCache objectAtIndex:row];
     return [cellInfo objectForKey:key];
 }
 
 - (BOOL)hasCachedHeightForRow:(NSInteger)row {
-    CGFloat height = [[self cachedObjectForRow:row andKey:@"height"] floatValue];
+    CGFloat height = [[self cachedObjectForCurrentRow:@"height"] floatValue];
     return height != -1;
 }
 
@@ -147,6 +162,10 @@
     }
     
     return [self internalHeightForRow:row] + self.rowSpacing;
+}
+
+- (BOOL)currentCellIsNewCell {
+    return _currentCellIsNewCell;
 }
 
 - (id)cellForRow:(NSInteger)row {
@@ -195,7 +214,6 @@
 
 - (void)reloadWithAnimation:(UITableViewRowAnimation)animation {
     [self.formVC.tableView reloadData];
-//    [self.formVC.tableView reloadSections:[NSIndexSet indexSetWithIndex:self.sectionIndex] withRowAnimation:animation];
 }
 
 - (void)singleSelectRow:(NSInteger)row usingAnimation:(UITableViewRowAnimation)animation {

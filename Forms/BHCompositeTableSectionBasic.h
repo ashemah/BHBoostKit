@@ -7,9 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "BHFormSection.h"
+#import "BHCompositeTableSection.h"
 
-@interface BHFormSectionBasic : BHFormSection {
+@interface BHCompositeTableSectionBasic : BHCompositeTableSection {
     
 }
 
@@ -20,6 +20,7 @@
 @property (readwrite, copy) didSwipeToDeleteRow didSwipeToDeleteRow;
 
 - (void)addCellFromNIBWithName:(NSString*)widgetClass;
-+ (BHFormSectionBasic*)formSectionForFormVC:(BHBlockTableViewController*)vc;
++ (BHCompositeTableSectionBasic*)sectionForViewController:(BHCompositeTableViewController*)vc;
++ (BHCompositeTableSectionBasic*)sectionForViewController:(BHCompositeTableViewController*)vc isHidden:(BOOL)isHidden;
 - (void)removeAllCells;
 @end

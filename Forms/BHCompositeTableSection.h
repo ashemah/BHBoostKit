@@ -7,31 +7,35 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "BHFormViewController.h"
+#import "BHFormTableViewController.h"
 
-typedef CGFloat (^HeightForCellBlock)(NSInteger row);
-typedef void (^ConfigureCellBlock)(NSInteger row);
-typedef void (^didTapRow)(NSInteger row);
-typedef void (^didSwipeToDeleteRow)(NSInteger row);
+@class BHCompositeTableSection;
 
-typedef CGFloat (^HeightForFRCRowBlock)(NSInteger row);
-typedef void (^ConfigureCellForFRCRowBlock)(NSInteger row);
-typedef void (^DidTapCellInFRCSectionBlock)(NSInteger row);
-typedef void (^DidSwipeDeleteCellInFRCSectionBlock)(NSInteger row);
+typedef CGFloat (^HeightForCellBlock)(BHCompositeTableSection *section);
+typedef void (^ConfigureCellBlock)(BHCompositeTableSection *section);
+typedef void (^didTapRow)(BHCompositeTableSection *section);
+typedef void (^didSwipeToDeleteRow)(BHCompositeTableSection *section);
+
+typedef CGFloat (^HeightForFRCRowBlock)(BHCompositeTableSection *section);
+typedef void (^ConfigureCellForFRCRowBlock)(BHCompositeTableSection *section);
+typedef void (^DidTapCellInFRCSectionBlock)(BHCompositeTableSection *section);
+typedef void (^DidSwipeDeleteCellInFRCSectionBlock)(BHCompositeTableSection *section);
 
 typedef BOOL (^IsHiddenBlock)();
 
-@interface BHFormSection : NSObject {
+///
+@interface BHCompositeTableSection : NSObject {
     BOOL _isHidden;
     BOOL _isOpen;
     BOOL _isEmpty;    
     NSInteger _emptyRowCount;
     NSInteger _heightCacheSize;
+    BOOL _currentCellIsNewCell;
 }
 
 @property (nonatomic, retain) UIView *headerView;
 @property (nonatomic, retain) UIView *footerView;
-@property (nonatomic, retain) BHBlockTableViewController *formVC;
+@property (nonatomic, retain) BHCompositeTableViewController *formVC;
 @property (nonatomic, assign) NSInteger defaultRowHeight;
 @property (nonatomic, assign) BOOL isHidden;
 @property (nonatomic, assign) BOOL isOpen;
@@ -39,28 +43,31 @@ typedef BOOL (^IsHiddenBlock)();
 @property (nonatomic, retain) NSString *emptyCellClass;
 @property (nonatomic, retain) UITableViewCell *emptyCell;
 @property (nonatomic, assign) CGFloat rowSpacing;
-@property (nonatomic, retain) id currentCell;
-@property (nonatomic, retain) id dummyCell;
+@property (nonatomic, assign) id currentCell;
+@property (nonatomic, assign) id dummyCell;
 @property (nonatomic, assign) NSInteger currentRow;
 @property (nonatomic, assign) NSUInteger sectionIndex;
 @property (nonatomic, assign) id currentObject;
 @property (nonatomic, assign) BOOL isLastRow;
 @property (nonatomic, assign) BOOL isFirstRow;
+@property (nonatomic, assign) BOOL isLastSection;
+@property (nonatomic, assign) BOOL isFirstSection;
+@property (nonatomic, assign) BOOL hasSingleRow;
 @property (nonatomic, assign) NSInteger lastTappedRow;
 @property (nonatomic, assign) BOOL showHeader;
 @property (nonatomic, retain) NSMutableArray *heightCache;
 @property (nonatomic, retain) NSMutableDictionary *cellInfoCache;
 @property (nonatomic, assign) BOOL hideHeaderWhenEmpty;
 
-- (id)initWithFormVC:(BHBlockTableViewController*)formVC;
+- (id)initWithViewController:(BHCompositeTableViewController*)formVC isHidden:(BOOL)isHidden;
 
 - (BOOL)hasCachedHeightForRow:(NSInteger)row;
 
-- (CGFloat)cachedHeightForRow:(NSInteger)row;
-- (id)cachedObjectForRow:(NSInteger)row andKey:(NSString*)key;
+- (id)cachedObjectForCurrentRow:(NSString*)key;
+- (void)cacheObjectForCurrentRow:(id)object forKey:(NSString*)key;
 
-- (void)cacheHeight:(CGFloat)height forRow:(NSInteger)row;
-- (void)cacheObject:(id)object forRow:(NSInteger)row andKey:(NSString*)key;
+- (CGFloat)cachedHeightForCurrentRow;
+- (void)cacheHeightForCurrentRow:(CGFloat)height;
 
 - (void)buildCellInfoCacheOfSize:(NSInteger)rowCount;
 
@@ -77,6 +84,8 @@ typedef BOOL (^IsHiddenBlock)();
 - (CGFloat)internalHeightForRow:(NSInteger)row;
 
 - (BOOL)isEditable;
+
+- (BOOL)currentCellIsNewCell;
 
 - (void)reloadCell:(NSInteger)row animation:(UITableViewRowAnimation)animation;
 - (void)reload;

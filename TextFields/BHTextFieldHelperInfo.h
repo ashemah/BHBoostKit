@@ -16,7 +16,8 @@ typedef enum {
     BHTextFieldHelperField_PhoneNumber,
     BHTextFieldHelperField_Currency,
     BHTextFieldHelperField_Custom,
-    BHTextFieldHelperField_ReadOnlyEmailAddress    
+    BHTextFieldHelperField_ReadOnlyEmailAddress,
+    BHTextFieldHelperField_Password
 } BHTextFieldHelperField;
 
 @interface BHTextFieldHelperInfo : NSObject {

@@ -19,6 +19,7 @@
 @synthesize hasChangedButton;
 @synthesize dataDict;
 @synthesize numbersPunctCharSet;
+@synthesize emailRegEx;
 
 @synthesize fieldDataDidChangeBlock;
 @synthesize fieldDidBeginEditing;
@@ -38,6 +39,14 @@
         self.numbersCharSet     = [NSCharacterSet decimalDigitCharacterSet];
         self.currencyCharSet    = [NSCharacterSet characterSetWithCharactersInString:@"1234567890."];
         self.dataDict           = [NSMutableDictionary dictionary];
+        self.emailRegEx         = @"(?:[a-z0-9!#$%\\&'*+/=?\\^_`{|}~-]+(?:\\.[a-z0-9!#$%\\&'*+/=?\\^_`{|}"
+        @"~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\"
+        @"x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-"
+        @"z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5"
+        @"]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-"
+        @"9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21"
+        @"-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])";    
+        
     }
     
     return self;
@@ -86,6 +95,7 @@
 	[field addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];        
     
     field.autocapitalizationType = UITextAutocapitalizationTypeWords;
+    field.secureTextEntry = NO;
     
     switch (type) {
         case BHTextFieldHelperField_Numbers: {
@@ -106,6 +116,10 @@
             
         case BHTextFieldHelperField_Currency: {
             field.keyboardType = UIKeyboardTypeNumbersAndPunctuation;
+        } break;
+            
+        case BHTextFieldHelperField_Password: {
+            field.secureTextEntry = YES;
         } break;
             
         default: {
@@ -216,35 +230,10 @@
     
     BHTextFieldHelperInfo *i = [self infoForTextField:textField];
     
-    if (i->type == BHTextFieldHelperField_Numbers) {
-        
-        for (int i = 0; i < [textEntered length]; i++) {
-            unichar c = [textEntered characterAtIndex:i];
-            if (![self.numbersCharSet characterIsMember:c]) {
-                return NO;
-            }
-        }        
-    }
-
-    if (i->type == BHTextFieldHelperField_PhoneNumber) {
-        
-        for (int i = 0; i < [textEntered length]; i++) {
-            unichar c = [textEntered characterAtIndex:i];
-            if (![self.numbersPunctCharSet characterIsMember:c]) {
-                return NO;
-            }
-        }        
-    }
+    BOOL isValid = [self validateField:i->key forData:textEntered];
     
-    
-    if (i->type == BHTextFieldHelperField_Currency) {
-        
-        for (int i = 0; i < [textEntered length]; i++) {
-            unichar c = [textEntered characterAtIndex:i];
-            if (![self.currencyCharSet characterIsMember:c]) {
-                return NO;
-            }
-        }        
+    if (!isValid) {
+        return NO;
     }
     
     [self.dataDict setObject:textField.text forKey:i->key];
@@ -254,6 +243,58 @@
 //    }
     
     return YES;
+}
+
+- (BOOL)validateField:(NSString*)fieldName forData:(NSString*)data {
+    
+    BHTextFieldHelperInfo *i = [self.infoForKey objectForKey:fieldName];
+    
+    if (i->type == BHTextFieldHelperField_Numbers) {
+        
+        for (int i = 0; i < [data length]; i++) {
+            unichar c = [data characterAtIndex:i];
+            if (![self.numbersCharSet characterIsMember:c]) {
+                return NO;
+            }
+        }        
+    }
+    
+    if (i->type == BHTextFieldHelperField_PhoneNumber) {
+        
+        for (int i = 0; i < [data length]; i++) {
+            unichar c = [data characterAtIndex:i];
+            if (![self.numbersPunctCharSet characterIsMember:c]) {
+                return NO;
+            }
+        }        
+    }
+    
+    
+    if (i->type == BHTextFieldHelperField_Currency) {
+        
+        for (int i = 0; i < [data length]; i++) {
+            unichar c = [data characterAtIndex:i];
+            if (![self.currencyCharSet characterIsMember:c]) {
+                return NO;
+            }
+        }        
+    }
+    
+//    if (i->type == BHTextFieldHelperField_EmailAddress) {
+//        
+//        NSPredicate *regExPredicate =
+//        [NSPredicate predicateWithFormat:@"SELF MATCHES[cd] %@", self.emailRegEx];        
+//        BOOL isValid = [regExPredicate evaluateWithObject:data];        
+//        if (!isValid) {
+//            return NO;
+//        }        
+//    }    
+    
+    return YES;
+}
+
+- (BOOL)isValid:(NSString*)fieldName {    
+    return [self validateField:fieldName forData:[self.dataDict objectForKey:fieldName]];
 }
 
 - (UIView *)findNextResponder:(NSInteger)tabOrder {
@@ -302,7 +343,7 @@
                 
                 if ([cell isKindOfClass:[UITableViewCell class]]) {
                     NSIndexPath *path = [self.tableView indexPathForCell:((UITableViewCell*)cell)];
-                    [self.tableView scrollToRowAtIndexPath:path atScrollPosition:UITableViewScrollPositionMiddle animated:YES];
+                    [self.tableView scrollToRowAtIndexPath:path atScrollPosition:UITableViewScrollPositionTop animated:YES];
                     break;
                 }
                 

@@ -8,43 +8,28 @@
 
 #import <UIKit/UIKit.h>
 
-@class BHFormSection;
+@class BHCompositeTableSection;
 
-@interface BHFormField : NSObject {
-    
-}
-
-@property (nonatomic, retain) NSString *widgetClass;
-
-- (id)fieldWithWidgetClass:(NSString*)widgetClass;
-
-@end
-
-///
-@interface BHBlockTableViewController : UIViewController<UITableViewDelegate, UITableViewDataSource, NSFetchedResultsControllerDelegate> {
+//
+@interface BHCompositeTableViewController : UIViewController<UITableViewDelegate, UITableViewDataSource> {
 }
 
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 @property (nonatomic, retain) NSMutableArray *sections;
 @property (nonatomic, retain) NSMutableArray *activeSections;
 @property (nonatomic, retain) NSMutableDictionary *cacheDict;
-@property (nonatomic, retain) BHFormSection *currentSection;
+@property (nonatomic, retain) BHCompositeTableSection *currentSection;
 @property (nonatomic, retain) NSMutableDictionary *tableCache;
 
 - (UITableViewCell*)cachedCell:(NSString*)cellClassName;
 + (UIView*)loadWidgetFromNIB:(NSString*)nibName;
 - (void)updateActiveSections;
-- (void)updateSection:(BHFormSection*) section;
+- (void)updateSection:(BHCompositeTableSection*) section;
 - (void)toggleSectionAtIndex:(NSInteger)index;
 - (void)openSectionAtIndex:(NSInteger)index;
 - (void)closeSectionAtIndex:(NSInteger)index;
 - (void)refreshForm;
-- (void)addSection:(BHFormSection*)section;
-
-- (id)currentCell;
-- (int)currentRow;
-- (id)currentObject;
-- (id)dummyCell;
+- (void)addSection:(BHCompositeTableSection*)section;
 
 - (id)cachedObjectForKey:(NSString*)key;
 - (void)cacheObject:(id)object forKey:(NSString*)key;
