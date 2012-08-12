@@ -18,6 +18,7 @@
 @synthesize didTapRow;
 @synthesize didSwipeToDeleteRow;
 @synthesize frcSourceSection;
+@synthesize forceFullReloadOnDataChange;
 
 + (BHCompositeTableSectionFRC*)sectionForViewController:(BHCompositeTableViewController*)vc widgetClassName:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1 {
     return [[[BHCompositeTableSectionFRC alloc] initWithViewController:vc widgetClassName:widgetClass1 frc:frc1 isHidden:NO] autorelease];
@@ -34,6 +35,7 @@
         _frc = [frc1 retain];
         self.frc.delegate = self;
         self.frcSourceSection = 0;
+        self.forceFullReloadOnDataChange = NO;
     }
     
     return self;
@@ -162,12 +164,19 @@
 #pragma mark Delegates
 
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
-    // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
-    [self.formVC.tableView beginUpdates];
+        
+    if (!self.forceFullReloadOnDataChange) {
+        // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
+        [self.formVC.tableView beginUpdates];
+    }
 }
 
 
 - (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath {
+    
+    if (self.forceFullReloadOnDataChange) {
+        return;
+    }
     
     // Ignore changes that are not in our section
     NSIndexPath *vIndexPath     = [self virtualIndexPath:indexPath];
@@ -201,6 +210,10 @@
 
 - (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
     
+    if (self.forceFullReloadOnDataChange) {
+        return;
+    }
+    
     if (sectionIndex != self.frcSourceSection) {
         return;
     }
@@ -223,24 +236,30 @@
         
     // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
     int rowCount = [self internalRowCount];
-    self.isEmpty = rowCount == 0;
-    [self.formVC.tableView endUpdates];
+    _isEmpty = rowCount == 0;
+    
+    if (self.forceFullReloadOnDataChange) {
+        [self.formVC.tableView reloadData];
+    }
+    else {
+        [self.formVC.tableView endUpdates];        
+    }
     
     if (!self.formVC.tableView.editing) {
         return;
     }
-    
-    // Redraw the rows
-    NSArray *cells = self.formVC.tableView.visibleCells;
-    NSMutableArray *indexPaths = [NSMutableArray array];
-    
-	for (UITableViewCell *cell in cells) {
-
-        NSIndexPath *indexPath  = [self.formVC.tableView indexPathForCell:cell];
-        [indexPaths addObject:indexPath];
-    }
-    
-    [self.formVC.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+        
+//    // Redraw the rows
+//    NSArray *cells = self.formVC.tableView.visibleCells;
+//    NSMutableArray *indexPaths = [NSMutableArray array];
+//    
+//	for (UITableViewCell *cell in cells) {
+//
+//        NSIndexPath *indexPath  = [self.formVC.tableView indexPathForCell:cell];
+//        [indexPaths addObject:indexPath];
+//    }
+//    
+//    [self.formVC.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
 }    
     
 //        if (self.configureRow) {

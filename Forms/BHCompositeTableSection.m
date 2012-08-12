@@ -45,6 +45,7 @@
         self.isHidden = isHidden;
         self.showHeader = YES;
         
+        _isEmpty = YES;        
         _isOpen = YES;
         
         self.hideHeaderWhenEmpty = YES;
@@ -69,6 +70,10 @@
 - (void)setIsOpen:(BOOL)isOpen1 {
     _isOpen = isOpen1;    
     [self.formVC updateSection:self];
+}
+
+- (BOOL)isEmpty {
+    return _isEmpty;
 }
 
 - (void)setIsEmpty:(BOOL)isEmpty1 {
@@ -101,7 +106,7 @@
         
     NSInteger rc = [self internalRowCount];
         
-    self.isEmpty = (rc == 0);
+    _isEmpty = (rc == 0);
     
     if (_isEmpty) {        
         return _emptyRowCount;

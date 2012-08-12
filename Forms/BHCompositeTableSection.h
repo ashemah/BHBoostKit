@@ -53,6 +53,7 @@ typedef BOOL (^IsHiddenBlock)();
 @property (nonatomic, assign) BOOL isLastSection;
 @property (nonatomic, assign) BOOL isFirstSection;
 @property (nonatomic, assign) BOOL hasSingleRow;
+@property (nonatomic, assign) BOOL isOnlyRowInTable;
 @property (nonatomic, assign) NSInteger lastTappedRow;
 @property (nonatomic, assign) BOOL showHeader;
 @property (nonatomic, retain) NSMutableArray *heightCache;
