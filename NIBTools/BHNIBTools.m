@@ -14,10 +14,15 @@
     
     UITableView *cell = [tableView dequeueReusableCellWithIdentifier:cellClass];
     
-    *isNewCell = NO;
+    if (isNewCell) {
+        *isNewCell = NO;
+    }
     
     if (!cell) {
-        *isNewCell = YES;
+        if (isNewCell) {
+            *isNewCell = YES;
+        }
+        
         cell = [BHNIBTools loadFirstFromNIB:cellClass];
     }
     

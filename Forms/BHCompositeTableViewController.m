@@ -108,10 +108,6 @@
     return cell;
 }
 
-//- (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath {
-//    return UITableViewCellEditingStyleNone;
-//}
-
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
     self.currentSection = [self.activeSections objectAtIndex:indexPath.section];
     return [self.currentSection isEditable];
@@ -201,12 +197,8 @@
     [self.currentSection didTapRow:indexPath.row];
 }
 
-- (void)didReceiveMemoryWarning
-{
-    // Releases the view if it doesn't have a superview.
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    
-    // Release any cached data, images, etc that aren't in use.
 }
 
 - (void)viewDidUnload {
