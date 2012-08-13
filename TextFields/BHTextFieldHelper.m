@@ -21,7 +21,7 @@
 @synthesize numbersPunctCharSet;
 @synthesize emailRegEx;
 
-@synthesize fieldDataDidChangeBlock;
+@synthesize fieldDataDidChange;
 @synthesize fieldDidBeginEditing;
 @synthesize fieldDidEndEditing;
 @synthesize fieldShouldReturn;
@@ -430,8 +430,8 @@
     
     [self.dataDict setObject:[sender text] forKey:i->key];   
     
-    if (self.fieldDataDidChangeBlock) {
-        self.fieldDataDidChangeBlock(i->key, [sender text]);
+    if (self.fieldDataDidChange) {
+        self.fieldDataDidChange(i->key, [sender text]);
     }    
 }
 

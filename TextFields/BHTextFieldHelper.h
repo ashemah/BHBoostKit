@@ -37,7 +37,7 @@ typedef BOOL (^FieldShouldReturn)(NSString *key);
 @property (nonatomic, assign) BOOL hasChanged;
 @property (nonatomic, retain) UIBarButtonItem *hasChangedButton;
 
-@property (readwrite, copy) FieldDataDidChangeBlock fieldDataDidChangeBlock;
+@property (readwrite, copy) FieldDataDidChangeBlock fieldDataDidChange;
 @property (readwrite, copy) FieldDidBeginEditing fieldDidBeginEditing;
 @property (readwrite, copy) FieldDidEndEditing fieldDidEndEditing;
 @property (readwrite, copy) FieldShouldReturn fieldShouldReturn;

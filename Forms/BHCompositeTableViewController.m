@@ -127,7 +127,10 @@
 
 - (int)tableView:(UITableView *)theTableView numberOfRowsInSection:(NSInteger)section {
     self.currentSection = [self.activeSections objectAtIndex:section];
-    return [self.currentSection rowCount];
+    
+    NSInteger rowCount = [self.currentSection rowCount];
+
+    return rowCount;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -150,8 +153,11 @@
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
     
     self.currentSection = [self.activeSections objectAtIndex:section];
+    
+    NSInteger rowCount = [self.currentSection rowCount];
+    
     if (self.currentSection.headerView && self.currentSection.showHeader) {
-        if ([self.currentSection isEmpty] && self.currentSection.hideHeaderWhenEmpty) {
+        if (rowCount == 0) {
             return nil;
         }
         else {
@@ -165,8 +171,11 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     
     self.currentSection = [self.activeSections objectAtIndex:section];
+    
+    NSInteger rowCount = [self.currentSection rowCount];
+    
     if (self.currentSection.headerView && self.currentSection.showHeader) {
-        if ([self.currentSection isEmpty] && self.currentSection.hideHeaderWhenEmpty) {
+        if (rowCount == 0) {
             return 0;
         }
         else {

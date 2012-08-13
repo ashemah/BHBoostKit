@@ -20,6 +20,7 @@
 @property (readwrite, copy) ConfigureCellForFRCRowBlock configureRow;
 @property (readwrite, copy) DidTapCellInFRCSectionBlock didTapRow;
 @property (readwrite, copy) DidSwipeDeleteCellInFRCSectionBlock didSwipeToDeleteRow;
+@property (nonatomic, assign) BOOL forceFullReloadOnDataChange;
 
 - (id)initWithViewController:(BHCompositeTableViewController*)formVC1 widgetClassName:(NSString*)widgetClass1 frc:(NSFetchedResultsController*)frc1 isHidden:(BOOL)isHidden;
 
