@@ -77,7 +77,7 @@
 }
 
 - (BOOL)currentRowIsLastRow {
-    return (_currentRow == _cachedNumberOfRowsInSection-1);
+    return (_currentRow == _cachedNumberOfRowsInCurrentSection-1);
 }
 
 - (BOOL)currentRowIsFirstRow {
@@ -85,7 +85,7 @@
 }
 
 - (BOOL)currentRowIsSingleRow {
-    return (_cachedNumberOfRowsInSection == 1);
+    return (_cachedNumberOfRowsInCurrentSection == 1);
 }
 
 - (BOOL)currentSectionIsLastSection {
@@ -113,6 +113,10 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {        
         
         if (self.didSwipeToDeleteRow) {
+            
+            _currentPath= indexPath;
+            _currentRow = indexPath.row;
+            
             self.didSwipeToDeleteRow(self, indexPath.section, indexPath.row);
         }
     }     
@@ -137,12 +141,10 @@
     
     if (self.frc) {
         id <NSFetchedResultsSectionInfo> sectInfo = [[self.frc sections] objectAtIndex:section];
-        _cachedNumberOfRowsInSection = [sectInfo numberOfObjects];
-        return _cachedNumberOfRowsInSection;
+        return [sectInfo numberOfObjects];
     }
     else if (self.numberOfRowsInSection) {
-        _cachedNumberOfRowsInSection = self.numberOfRowsInSection(self, section);
-        return _cachedNumberOfRowsInSection;
+        return self.numberOfRowsInSection(self, section);
     }
 
     NSAssert(NO, @"Number of rows in section not specified");
@@ -152,8 +154,11 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 
     //
-    _currentPath= indexPath;
-    _currentRow = indexPath.row;
+    _currentPath    = indexPath;
+    _currentSection = indexPath.section;
+    _currentRow     = indexPath.row;
+    _cachedNumberOfRowsInCurrentSection = [self tableView:self.tableView numberOfRowsInSection:_currentSection];
+    
     _cell       = [self cachedCell:self.cellClass];
     
     if (self.heightForRow) {
@@ -167,8 +172,11 @@
 - (UITableViewCell*)tableView:(UITableView *)theTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
       
     //
-    _currentPath= indexPath;
-    _currentRow = indexPath.row;
+    _currentPath    = indexPath;
+    _currentSection = indexPath.section;
+    _currentRow     = indexPath.row;
+    _cachedNumberOfRowsInCurrentSection = [self tableView:self.tableView numberOfRowsInSection:_currentSection];
+
     _cell       = [self cachedCell:self.cellClass];
     
     //
@@ -245,8 +253,11 @@
 	[theTableView deselectRowAtIndexPath:indexPath animated:YES];	
     
     //
-    _currentPath= indexPath;
-    _currentRow = indexPath.row;
+    _currentPath    = indexPath;
+    _currentSection = indexPath.section;
+    _currentRow     = indexPath.row;
+    _cachedNumberOfRowsInCurrentSection = [self tableView:self.tableView numberOfRowsInSection:_currentSection];
+
     _cell       = [self cachedCell:self.cellClass];
     
     if (self.didTapRow) {

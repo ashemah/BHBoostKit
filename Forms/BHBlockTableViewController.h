@@ -25,7 +25,7 @@ typedef CGFloat (^HeightForHeaderInSectionBlockTableBlock)(BHBlockTableViewContr
     UITableViewCell *_cell;
     NSInteger _currentRow;
     NSInteger _currentSection;
-    NSInteger _cachedNumberOfRowsInSection;
+    NSInteger _cachedNumberOfRowsInCurrentSection;
     NSInteger _cachedNumberOfSections;
     NSFetchedResultsController *_frc;
     NSIndexPath *_currentPath;
