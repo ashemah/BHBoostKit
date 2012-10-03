@@ -84,7 +84,7 @@
     self.hasSingleRow = [self rowCount] == 1;
     self.isFirstSection  = self.sectionIndex == 0;
     self.isLastSection  = self.sectionIndex == [self.formVC.activeSections count]-1;
-    
+        
     if (self.configureRow) {
         self.configureRow(self);
     }

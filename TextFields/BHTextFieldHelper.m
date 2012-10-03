@@ -94,7 +94,7 @@
     field.placeholder = title;
 	[field addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];        
     
-    field.autocapitalizationType = UITextAutocapitalizationTypeWords;
+    field.autocapitalizationType = UITextAutocapitalizationTypeSentences;
     field.secureTextEntry = NO;
     
     switch (type) {

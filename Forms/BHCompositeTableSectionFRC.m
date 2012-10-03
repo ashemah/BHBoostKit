@@ -238,7 +238,7 @@
     int rowCount = [self internalRowCount];
     _isEmpty = rowCount == 0;
     
-    if (self.forceFullReloadOnDataChange) {
+    if (self.formVC.tableView.editing && self.forceFullReloadOnDataChange) {
         [self.formVC.tableView reloadData];
     }
     else {

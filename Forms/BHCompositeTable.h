@@ -8,3 +8,4 @@
 #import "BHCompositeTableSectionBasic.h"
 #import "BHCompositeTableSectionFRC.h"
 #import "BHFormTableViewController.h"
+#import "BHBlockTableViewController.h"

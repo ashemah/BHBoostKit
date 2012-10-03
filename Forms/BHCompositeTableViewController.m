@@ -59,7 +59,7 @@
     
     for (BHCompositeTableSection *section in self.sections) {
         
-        if (!section.isHidden) {            
+        if (!section.isHidden) {
             section.sectionIndex = sectionIndex;
             sectionIndex++;
             
