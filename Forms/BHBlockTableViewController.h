@@ -39,7 +39,7 @@ typedef CGFloat (^HeightForHeaderInSectionBlockTableBlock)(BHBlockTableViewContr
 @property (nonatomic, copy) NumberOfRowsInSectionBlockTableBlock numberOfRowsInSection;
 @property (nonatomic, copy) ViewForHeaderInSectionBlockTableBlock viewForHeaderInSection;
 @property (nonatomic, copy) HeightForHeaderInSectionBlockTableBlock heightForHeaderInSection;
-
+@property (nonatomic, assign) BOOL forceFullRefresh;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 
 @property (nonatomic, assign) NSInteger defaultRowHeight;
@@ -75,5 +75,7 @@ typedef CGFloat (^HeightForHeaderInSectionBlockTableBlock)(BHBlockTableViewContr
 - (void)addSelectedPath:(NSIndexPath*)path;
 - (void)removeSelectedPath:(NSIndexPath*)path;
 - (BOOL)isSelectedPath:(NSIndexPath*)path;
+- (int)rowCountForSection:(NSInteger)section;
+- (int)sectionCount;
 
 @end
