@@ -19,6 +19,8 @@ typedef NSInteger (^NumberOfSectionsInTableBlockTableBlock)(BHBlockTableViewCont
 typedef NSInteger (^NumberOfRowsInSectionBlockTableBlock)(BHBlockTableViewController *tableVC, NSInteger section);
 typedef UIView* (^ViewForHeaderInSectionBlockTableBlock)(BHBlockTableViewController *tableVC, NSInteger section);
 typedef CGFloat (^HeightForHeaderInSectionBlockTableBlock)(BHBlockTableViewController *tableVC, NSInteger section);
+typedef void (^TableRowCountBlock)(BHBlockTableViewController *tableVC, NSInteger rowCount);
+typedef void (^DidCompletedDataRefresh)(BHBlockTableViewController *tableVC);
 
 //
 @interface BHBlockTableViewController : UIViewController<UITableViewDataSource, UITableViewDelegate, NSFetchedResultsControllerDelegate> {
@@ -39,6 +41,8 @@ typedef CGFloat (^HeightForHeaderInSectionBlockTableBlock)(BHBlockTableViewContr
 @property (nonatomic, copy) NumberOfRowsInSectionBlockTableBlock numberOfRowsInSection;
 @property (nonatomic, copy) ViewForHeaderInSectionBlockTableBlock viewForHeaderInSection;
 @property (nonatomic, copy) HeightForHeaderInSectionBlockTableBlock heightForHeaderInSection;
+@property (nonatomic, copy) TableRowCountBlock tableRowCount;
+@property (nonatomic, copy) DidCompletedDataRefresh didCompleteDataRefresh;
 @property (nonatomic, assign) BOOL forceFullRefresh;
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
 
@@ -68,6 +72,7 @@ typedef CGFloat (^HeightForHeaderInSectionBlockTableBlock)(BHBlockTableViewContr
 @property (nonatomic, retain) NSMutableSet *selectedPaths;
 
 @property (nonatomic, assign) BOOL forceFullRefreshOnFRCChange;
+@property (nonatomic, assign) BOOL ignoreDataChanges;
 
 - (UITableViewCell*)cachedCell:(NSString*)cellClass;
 - (UITableViewCell*)cachedCell:(NSString*)cellClass isNewCell:(BOOL*)isNewCell;

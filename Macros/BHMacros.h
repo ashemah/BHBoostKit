@@ -44,7 +44,7 @@ _vcname *vc = [[[_vcname alloc] _initMethod] autorelease];                    \
 NSLog(@"URL %@", r.url);                                      \
 r.delegate = self;   \
 r.validatesSecureCertificate = NO; \
-r.timeOutSeconds        = 60; \
+r.timeOutSeconds        = 10; \
 [r setAuthenticationScheme:(NSString *)kCFHTTPAuthenticationSchemeBasic];\
 r.didStartSelector  = @selector(_method ## DidStart:);        \
 r.didFinishSelector = @selector(_method ## DidSucceed:);      \
@@ -53,7 +53,7 @@ r.didFailSelector   = @selector(_method ## DidFail:);         \
 #define bhSetupRequest2(_r)                                    \
 NSLog(@"URL %@", _r.url);                                      \
 _r.delegate = self;   \
-_r.timeOutSeconds        = 60; \
+_r.timeOutSeconds        = 10; \
 [_r setAuthenticationScheme:(NSString *)kCFHTTPAuthenticationSchemeBasic];\
 
 #define bhDelegateRespondsTo(_method) (self.delegate && [self.delegate respondsToSelector:@selector(_method)])

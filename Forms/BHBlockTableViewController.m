@@ -211,7 +211,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     
-    if (self.heightForHeaderInSection) {
+    if (self.viewForHeaderInSection && self.heightForHeaderInSection) {
         return self.heightForHeaderInSection(self, section);
     }
 
@@ -224,6 +224,10 @@
         _frc = frc1;
         _frc.delegate = self;
     }
+    
+    if (self.frc && self.tableRowCount) {
+        self.tableRowCount(self, [[self.frc fetchedObjects] count]);
+    }    
 }
 
 - (void)addSelectedPath:(NSIndexPath*)path {
@@ -382,6 +386,14 @@
     }
     
     self.forceFullRefresh = NO;
+    
+    if (self.frc && self.tableRowCount) {
+        self.tableRowCount(self, [[self.frc fetchedObjects] count]);
+    }
+    
+    if (self.didCompleteDataRefresh && !self.ignoreDataChanges) {
+        self.didCompleteDataRefresh(self);
+    }
 }
 
 - (NSIndexPath *)tableView:(UITableView *)tableView

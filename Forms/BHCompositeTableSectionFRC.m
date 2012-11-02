@@ -164,7 +164,11 @@
 #pragma mark Delegates
 
 - (void)controllerWillChangeContent:(NSFetchedResultsController *)controller {
-        
+    
+    if (controller != self.frc) {
+        return;
+    }
+    
     if (!self.forceFullReloadOnDataChange) {
         // The fetch controller is about to start sending change notifications, so prepare the table view for updates.
         [self.formVC.tableView beginUpdates];
@@ -173,6 +177,10 @@
 
 
 - (void)controller:(NSFetchedResultsController *)controller didChangeObject:(id)anObject atIndexPath:(NSIndexPath *)indexPath forChangeType:(NSFetchedResultsChangeType)type newIndexPath:(NSIndexPath *)newIndexPath {
+    
+    if (controller != self.frc) {
+        return;
+    }
     
     if (self.forceFullReloadOnDataChange) {
         return;
@@ -191,6 +199,7 @@
             break;
             
         case NSFetchedResultsChangeDelete:
+            [self.ignoredIndexPaths addObject:indexPath];
             [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:vIndexPath] withRowAnimation:UITableViewRowAnimationFade];
             break;
             
@@ -209,6 +218,10 @@
 
 
 - (void)controller:(NSFetchedResultsController *)controller didChangeSection:(id <NSFetchedResultsSectionInfo>)sectionInfo atIndex:(NSUInteger)sectionIndex forChangeType:(NSFetchedResultsChangeType)type {
+    
+    if (controller != self.frc) {
+        return;
+    }
     
     if (self.forceFullReloadOnDataChange) {
         return;
@@ -233,72 +246,46 @@
 }
 
 - (void)controllerDidChangeContent:(NSFetchedResultsController *)controller {
-        
+    
+    if (controller != self.frc) {
+        return;
+    }
+    
+//	for (UITableViewCell *cell in self.formVC.tableView.visibleCells) {
+//
+//		NSIndexPath *cellIndexPath = [self virtualIndexPath:[self.formVC.tableView indexPathForCell:cell]];
+//
+//        if ([self.ignoredIndexPaths member:cellIndexPath]) {
+//            continue; // Ignore it
+//        }
+//        
+//        self.currentCell    = cell;
+//        self.currentObject  = [self.frc objectAtIndexPath:[self sourceIndexPathForRow:cellIndexPath.row]];
+//        self.currentRow     = cellIndexPath.row;
+//
+//        self.sectionIndex   = cellIndexPath.section;
+//        self.isFirstRow = cellIndexPath.row == 0;
+//        self.isLastRow  = cellIndexPath.row == [self rowCount]-1;
+//        self.hasSingleRow = [self rowCount] == 1;
+//        self.isFirstSection  = self.sectionIndex == 0;
+//        self.isLastSection  = self.sectionIndex == [self.formVC.activeSections count]-1;
+//        
+//        self.configureRow(self);
+//    }
+    
+    [self.ignoredIndexPaths removeAllObjects];
+    
     // The fetch controller has sent all current change notifications, so tell the table view to process all updates.
     int rowCount = [self internalRowCount];
     _isEmpty = rowCount == 0;
     
-    if (self.formVC.tableView.editing && self.forceFullReloadOnDataChange) {
+    if (self.formVC.tableView.editing || self.forceFullReloadOnDataChange) {
         [self.formVC.tableView reloadData];
     }
     else {
         [self.formVC.tableView endUpdates];        
     }
     
-    if (!self.formVC.tableView.editing) {
-        return;
-    }
-        
-//    // Redraw the rows
-//    NSArray *cells = self.formVC.tableView.visibleCells;
-//    NSMutableArray *indexPaths = [NSMutableArray array];
-//    
-//	for (UITableViewCell *cell in cells) {
-//
-//        NSIndexPath *indexPath  = [self.formVC.tableView indexPathForCell:cell];
-//        [indexPaths addObject:indexPath];
-//    }
-//    
-//    [self.formVC.tableView reloadRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
-}    
-    
-//        if (self.configureRow) {
-//        
-//            NSIndexPath *indexPath  = [self.formVC.tableView indexPathForCell:cell];
-//        
-//            NSInteger row           = indexPath.row;            
-//            
-//            NSIndexPath *foo        = [self sourceIndexPathForRow:row];
-//                        
-//            if (indexPath.section != self.sectionIndex) {
-//                continue;
-//            }
-//                        
-//            self.currentObject      = [self.frc objectAtIndexPath:foo];
-//            self.currentRow         = row;
-//            
-//            self.isFirstRow         = row == 0;
-//            self.isLastRow          = row == [self rowCount]-1;
-//
-//            self.currentCell = cell;
-//            self.hasSingleRow = [self rowCount] == 1;
-//            self.isFirstSection  = self.sectionIndex == 0;
-//            self.isLastSection  = self.sectionIndex == [self.formVC.activeSections count]-1;
-//            
-//            [self.formVC.tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationNone];
-            
-//            if (self.isFirstRow || self.isLastRow) {
-                
-//                self.currentCell = cell;
-//                self.hasSingleRow = [self rowCount] == 1;
-//                self.isFirstSection  = self.sectionIndex == 0;
-//                self.isLastSection  = self.sectionIndex == [self.formVC.activeSections count]-1;
-//                
-//                self.configureRow(self);                
-//            }
-//        }
-//	}    
-//}
-
+}
 
 @end
