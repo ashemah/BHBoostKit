@@ -12,7 +12,7 @@
 
 //
 @interface BHCompositeTableViewController : UIViewController<UITableViewDelegate, UITableViewDataSource> {
-    NSFetchedResultsController *_frc;
+//    NSFetchedResultsController *_frc;
 }
 
 @property (nonatomic, retain) IBOutlet UITableView *tableView;
