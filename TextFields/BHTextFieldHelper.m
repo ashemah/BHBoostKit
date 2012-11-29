@@ -75,7 +75,7 @@
 }
 
 - (BHTextFieldHelperInfo*)addTextField:(UITextField*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type presenterParser:(BHTextFieldPresenterParser*)presenterParser {
-    NSAssert(field, @"Invalid field! %s", key);
+    NSAssert(field, @"Invalid field! %@", key);
     
     BHTextFieldHelperInfo *i = [self.infoForKey objectForKey:key];
     
@@ -94,7 +94,7 @@
     field.placeholder = title;
 	[field addTarget:self action:@selector(textFieldDidChange:) forControlEvents:UIControlEventEditingChanged];        
     
-    field.autocapitalizationType = UITextAutocapitalizationTypeWords;
+    field.autocapitalizationType = UITextAutocapitalizationTypeSentences;
     field.secureTextEntry = NO;
     
     switch (type) {
@@ -144,7 +144,7 @@
 
 - (BHTextFieldHelperInfo*)addTextView:(UITextView*)field title:(NSString*)title key:(NSString*)key type:(BHTextFieldHelperField)type {
 
-    NSAssert(field, @"Invalid field! %s", key);
+    NSAssert(field, @"Invalid field! %@", key);
     
     BHTextFieldHelperInfo *i = [self.infoForKey objectForKey:key];
     
@@ -243,6 +243,11 @@
 //    }
     
     return YES;
+}
+
+- (void)resignFirstResponderForKey:(NSString*)fieldName {
+    BHTextFieldHelperInfo *i = [self.infoForKey objectForKey:fieldName];
+    [i.field resignFirstResponder];
 }
 
 - (BOOL)validateField:(NSString*)fieldName forData:(NSString*)data {

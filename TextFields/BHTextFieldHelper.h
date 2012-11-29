@@ -58,7 +58,7 @@ typedef BOOL (^FieldShouldReturn)(NSString *key);
 - (BOOL)keyIsValid:(NSString*)key;
 - (UIView *)findNextResponder:(NSInteger)tabOrder;
 - (void)setTextFromDictionary:(NSDictionary*)dict;
-
+- (void)resignFirstResponderForKey:(NSString*)fieldName;
 - (void)setData:(id)data forKey:(NSString *)key;
 - (id)dataForKey:(NSString *)key;
 

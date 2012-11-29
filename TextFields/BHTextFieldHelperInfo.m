@@ -10,7 +10,6 @@
 
 @implementation BHTextFieldHelperInfo
 
-@synthesize field;
 @synthesize presenterParser;
 
 - (void)dealloc {

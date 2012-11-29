@@ -51,6 +51,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.forceStaticTableViewHeaders = NO;
     self.selectedPaths = [NSMutableSet set];
 }
 
@@ -77,7 +78,7 @@
 }
 
 - (BOOL)currentRowIsLastRow {
-    return (_currentRow == _cachedNumberOfRowsInSection-1);
+    return (_currentRow == [self.tableView numberOfRowsInSection:_currentSection]-1);
 }
 
 - (BOOL)currentRowIsFirstRow {
@@ -85,7 +86,7 @@
 }
 
 - (BOOL)currentRowIsSingleRow {
-    return (_cachedNumberOfRowsInSection == 1);
+    return ([self.tableView numberOfRowsInSection:_currentSection] == 1);
 }
 
 - (BOOL)currentSectionIsLastSection {
@@ -98,14 +99,18 @@
 
 - (UITableViewCell*)cachedCell:(NSString*)class isNewCell:(BOOL*)isNewCell {
     
-    UITableViewCell *cell = [BHNIBTools cachedTableCellWithClass:class tableView:self.tableView isNewCell:isNewCell];        
+    UITableViewCell *cell = [BHNIBTools cachedTableCellWithClass:class owner:self tableView:self.tableView isNewCell:isNewCell];
     return cell;
 }
 
 - (UITableViewCell*)cachedCell:(NSString*)class {
     
-    UITableViewCell *cell = [BHNIBTools cachedTableCellWithClass:class tableView:self.tableView isNewCell:nil];        
+    UITableViewCell *cell = [BHNIBTools cachedTableCellWithClass:class owner:self tableView:self.tableView isNewCell:nil];
     return cell;
+}
+
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath {
+    return (self.didSwipeToDeleteRow != nil);
 }
 
 - (void)tableView:(UITableView *)tableView1 commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -137,12 +142,10 @@
     
     if (self.frc) {
         id <NSFetchedResultsSectionInfo> sectInfo = [[self.frc sections] objectAtIndex:section];
-        _cachedNumberOfRowsInSection = [sectInfo numberOfObjects];
-        return _cachedNumberOfRowsInSection;
+        return [sectInfo numberOfObjects];
     }
     else if (self.numberOfRowsInSection) {
-        _cachedNumberOfRowsInSection = self.numberOfRowsInSection(self, section);
-        return _cachedNumberOfRowsInSection;
+        return self.numberOfRowsInSection(self, section);
     }
 
     NSAssert(NO, @"Number of rows in section not specified");
@@ -154,6 +157,8 @@
     //
     _currentPath= indexPath;
     _currentRow = indexPath.row;
+    _currentSection = indexPath.section;
+    
     _cell       = [self cachedCell:self.cellClass];
     
     if (self.heightForRow) {
@@ -169,6 +174,7 @@
     //
     _currentPath= indexPath;
     _currentRow = indexPath.row;
+    _currentSection = indexPath.section;
     _cell       = [self cachedCell:self.cellClass];
     
     //
@@ -231,6 +237,11 @@
 #pragma mark Table View Delegate Methods
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    if (!self.forceStaticTableViewHeaders) {
+        return;
+    }
+    
     CGFloat sectionHeaderHeight = 50;
     
     if (scrollView.contentOffset.y <= sectionHeaderHeight&&scrollView.contentOffset.y >= 0) {
@@ -247,6 +258,8 @@
     //
     _currentPath= indexPath;
     _currentRow = indexPath.row;
+    _currentSection = indexPath.section;
+    
     _cell       = [self cachedCell:self.cellClass];
     
     if (self.didTapRow) {

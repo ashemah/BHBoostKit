@@ -58,6 +58,7 @@
     NSString *widgetClass = [self.fields objectAtIndex:row];
     
     self.dummyCell = [self.formVC cachedCell:widgetClass];
+    self.currentCell = self.dummyCell; // Will be fixed in a later version - currentCell shouldnt be available here
     self.currentRow = row;
 
     self.isFirstRow = row == 0;

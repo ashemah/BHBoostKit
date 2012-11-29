@@ -25,7 +25,6 @@ typedef CGFloat (^HeightForHeaderInSectionBlockTableBlock)(BHBlockTableViewContr
     UITableViewCell *_cell;
     NSInteger _currentRow;
     NSInteger _currentSection;
-    NSInteger _cachedNumberOfRowsInSection;
     NSInteger _cachedNumberOfSections;
     NSFetchedResultsController *_frc;
     NSIndexPath *_currentPath;
@@ -68,6 +67,7 @@ typedef CGFloat (^HeightForHeaderInSectionBlockTableBlock)(BHBlockTableViewContr
 @property (nonatomic, retain) NSMutableSet *selectedPaths;
 
 @property (nonatomic, assign) BOOL forceFullRefreshOnFRCChange;
+@property (assign, nonatomic) BOOL forceStaticTableViewHeaders;
 
 - (UITableViewCell*)cachedCell:(NSString*)cellClass;
 - (UITableViewCell*)cachedCell:(NSString*)cellClass isNewCell:(BOOL*)isNewCell;
