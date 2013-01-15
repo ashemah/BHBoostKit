@@ -118,27 +118,38 @@
     if (editingStyle == UITableViewCellEditingStyleDelete) {        
         
         if (self.didSwipeToDeleteRow) {
-            self.didSwipeToDeleteRow(self, indexPath.section, indexPath.row);
+            
+            //
+            _currentPath    = indexPath;
+            _currentRow     = indexPath.row;
+            _currentSection = indexPath.section;
+            
+            self.didSwipeToDeleteRow(self, _currentSection, _currentRow);
+            self.forceFullRefresh = YES;
         }
     }     
 }
 
-- (int)numberOfSectionsInTableView:(UITableView *)theTableView {
+- (int)sectionCount {
     
     if (self.frc) {
         _cachedNumberOfSections = [[self.frc sections] count];
-        return _cachedNumberOfSections;        
+        return _cachedNumberOfSections;
     }
     else if (self.numberOfSectionsInTable) {
         _cachedNumberOfSections = self.numberOfSectionsInTable(self);
         return _cachedNumberOfSections;
     }
-    
+
     NSAssert(NO, @"Number of sections not specified");
-    return 0;    
+    return 0;
 }
 
-- (int)tableView:(UITableView *)theTableView numberOfRowsInSection:(NSInteger)section {
+- (int)numberOfSectionsInTableView:(UITableView *)theTableView {
+    return [self sectionCount];
+}
+
+- (int)rowCountForSection:(NSInteger)section {
     
     if (self.frc) {
         id <NSFetchedResultsSectionInfo> sectInfo = [[self.frc sections] objectAtIndex:section];
@@ -147,7 +158,13 @@
     else if (self.numberOfRowsInSection) {
         return self.numberOfRowsInSection(self, section);
     }
+    
+    return 0;
+}
 
+- (int)tableView:(UITableView *)theTableView numberOfRowsInSection:(NSInteger)section {
+    
+    return [self rowCountForSection:section];
     NSAssert(NO, @"Number of rows in section not specified");
     return 0;
 }
@@ -198,7 +215,7 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
     
-    if (self.heightForHeaderInSection) {
+    if (self.viewForHeaderInSection && self.heightForHeaderInSection) {
         return self.heightForHeaderInSection(self, section);
     }
 
@@ -211,6 +228,10 @@
         _frc = frc1;
         _frc.delegate = self;
     }
+    
+    if (self.frc && self.tableRowCount) {
+        self.tableRowCount(self, [[self.frc fetchedObjects] count]);
+    }    
 }
 
 - (void)addSelectedPath:(NSIndexPath*)path {
@@ -289,31 +310,59 @@
             
     if (!self.forceFullRefreshOnFRCChange) {
     
+        
         switch(type) {
                 
             case NSFetchedResultsChangeInsert:
-                [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
                 break;
                 
             case NSFetchedResultsChangeDelete:
-                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
                 break;
                 
             case NSFetchedResultsChangeUpdate:
-                if (newIndexPath) {
-                    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-                    [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
-                }
+                //[self configureCell:[tableView cellForRowAtIndexPath:indexPath] atIndexPath:indexPath];
                 break;
                 
             case NSFetchedResultsChangeMove:
-                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-                // Reloading the section inserts a new row and ensures that titles are updated appropriately.
-                if (newIndexPath) {
-                    [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:newIndexPath.section] withRowAnimation:UITableViewRowAnimationFade];
-                }
+                [tableView deleteRowsAtIndexPaths:[NSArray
+                                                   arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+                [tableView insertRowsAtIndexPaths:[NSArray
+                                                   arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
                 break;
         }
+//        
+//        switch(type) {
+//                
+//            case NSFetchedResultsChangeInsert:
+//                [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+//                break;
+//                
+//            case NSFetchedResultsChangeDelete:
+//                [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+////                [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:indexPath.section] withRowAnimation:UITableViewRowAnimationFade];
+//                break;
+//                
+//            case NSFetchedResultsChangeUpdate:
+//                if (newIndexPath) {
+//                    [self.tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+//                    [self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:newIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+//                }
+//                break;
+//                
+//            case NSFetchedResultsChangeMove: {
+//                
+//                NSMutableIndexSet *foo = [NSMutableIndexSet indexSetWithIndex:indexPath.section];
+//                // Reloading the section inserts a new row and ensures that titles are updated appropriately.
+//                if (newIndexPath) {
+//                    [foo addIndex:newIndexPath.section];
+//                }
+//
+//                [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:indexPath.section] withRowAnimation:UITableViewRowAnimationFade];
+//        }
+//                break;
+//        }
     }
 }
 
@@ -344,6 +393,63 @@
     else {
         [self.tableView endUpdates];        
     }
-}    
+    
+    self.forceFullRefresh = NO;
+    
+    if (self.frc && self.tableRowCount) {
+        self.tableRowCount(self, [[self.frc fetchedObjects] count]);
+    }
+    
+    if (self.didCompleteDataRefresh) {
+        self.didCompleteDataRefresh(self);
+    }
+}
+
+- (NSIndexPath *)tableView:(UITableView *)tableView
+targetIndexPathForMoveFromRowAtIndexPath:(NSIndexPath *)sourceIndexPath
+       toProposedIndexPath:(NSIndexPath *)proposedDestinationIndexPath
+{
+    NSInteger sectionRows = [self.tableView numberOfRowsInSection:[sourceIndexPath section]];
+    
+    UITableViewCell *sourceCell = [self.tableView cellForRowAtIndexPath:sourceIndexPath];
+    UITableViewCell *destCell = [self.tableView cellForRowAtIndexPath:proposedDestinationIndexPath];
+    
+    if(sourceIndexPath.row == 0 && proposedDestinationIndexPath.row == 1) {
+//        ((UIImageView *)destCell.backgroundView).image = [UIImage imageNamed:@"table_row_top_bkg.png"];
+//        
+//        if(proposedDestinationIndexPath.row == sectionRows - 1)
+//            ((UIImageView *)sourceCell.backgroundView).image = [UIImage imageNamed:@"table_bottom_row_bkg.png"];
+//        else
+//            ((UIImageView *)sourceCell.backgroundView).image = [UIImage imageNamed:@"table_row_bkg.png"];
+    }
+    else if(sourceIndexPath.row == sectionRows - 1 && proposedDestinationIndexPath.row == sectionRows - 2) {
+//        ((UIImageView *)destCell.backgroundView).image = [UIImage imageNamed:@"table_bottom_row_bkg.png"];
+//        
+//        if(proposedDestinationIndexPath.row == 0)
+//            ((UIImageView *)sourceCell.backgroundView).image = [UIImage imageNamed:@"table_row_top_bkg.png"];
+//        else
+//            ((UIImageView *)sourceCell.backgroundView).image = [UIImage imageNamed:@"table_row_bkg.png"];
+    }
+    else if(proposedDestinationIndexPath.row == 0) {
+//        ((UIImageView *)sourceCell.backgroundView).image = [UIImage imageNamed:@"table_row_top_bkg.png"];
+//        
+//        destCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:proposedDestinationIndexPath.section]];
+//        if(sectionRows == 2)
+//            ((UIImageView *)destCell.backgroundView).image = [UIImage imageNamed:@"table_bottom_row_bkg.png"];
+//        else
+//            ((UIImageView *)destCell.backgroundView).image = [UIImage imageNamed:@"table_row_bkg.png"];
+    }
+    else if(proposedDestinationIndexPath.row == sectionRows - 1) {
+//        ((UIImageView *)sourceCell.backgroundView).image = [UIImage imageNamed:@"table_bottom_row_bkg.png"];
+//        
+//        destCell = [self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:sectionRows - 1 inSection:proposedDestinationIndexPath.section]];
+//        if(sectionRows == 2)
+//            ((UIImageView *)destCell.backgroundView).image = [UIImage imageNamed:@"table_row_top_bkg.png"];
+//        else
+//            ((UIImageView *)destCell.backgroundView).image = [UIImage imageNamed:@"table_row_bkg.png"];
+    }
+    
+    return proposedDestinationIndexPath;
+}
 
 @end

@@ -17,7 +17,7 @@
 
 + (void)place:(UIView*)view after:(UIView*)afterView withSpacing:(CGFloat)spacing {
     CGRect f = view.frame;
-    f.origin.y = view.frame.origin.y + view.frame.size.height + spacing;
+    f.origin.y = afterView.frame.origin.y + afterView.frame.size.height + spacing;
     view.frame = f;
 }
 

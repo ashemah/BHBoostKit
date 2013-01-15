@@ -15,8 +15,6 @@
 - (void)dealloc {
     self.field = nil;    
     self.presenterParser = nil;
-    
-    [super dealloc];
 }
 
 @end

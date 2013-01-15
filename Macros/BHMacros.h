@@ -54,6 +54,10 @@ _vcname *vc = [[_vcname alloc] _initMethod]; \
 [items addObject:vc]; \
 [self.navigationController setViewControllers:items animated:YES] \
 
+#define bhPresentNavWrappedModalVC(_vcname) \
+_vcname *vc = [[_vcname alloc] init];                    \
+UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc]; \
+[self presentModalViewController:nav animated:YES]
 
 #define bhPresentModalVC(_vcname)                                           \
 _vcname *vc = [[[_vcname alloc] init] autorelease];                    \
@@ -92,7 +96,7 @@ _below.frame        = CGRectMake(_below.frame.origin.x, _above.frame.origin.y, _
 NSLog(@"URL %@", r.url);                                      \
 r.delegate = self;   \
 r.validatesSecureCertificate = NO; \
-r.timeOutSeconds        = 60; \
+r.timeOutSeconds        = 10; \
 [r setAuthenticationScheme:(NSString *)kCFHTTPAuthenticationSchemeBasic];\
 r.didStartSelector  = @selector(_method ## DidStart:);        \
 r.didFinishSelector = @selector(_method ## DidSucceed:);      \
@@ -101,7 +105,7 @@ r.didFailSelector   = @selector(_method ## DidFail:);         \
 #define bhSetupRequest2(_r)                                    \
 NSLog(@"URL %@", _r.url);                                      \
 _r.delegate = self;   \
-_r.timeOutSeconds        = 60; \
+_r.timeOutSeconds        = 10; \
 [_r setAuthenticationScheme:(NSString *)kCFHTTPAuthenticationSchemeBasic];\
 
 #define bhDelegateRespondsTo(_method) (self.delegate && [self.delegate respondsToSelector:@selector(_method)])

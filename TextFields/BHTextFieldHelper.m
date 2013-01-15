@@ -60,14 +60,13 @@
 }
 
 - (void)dealloc {
-    [super dealloc];
     for (BHTextFieldHelperInfo *i in [self.fields allValues]) {
-        [i release];
+        // Nop
     }
 }
 
 + (BHTextFieldHelper*)textFieldHelper {
-    return [[[BHTextFieldHelper alloc] init] autorelease];
+    return [[BHTextFieldHelper alloc] init];
 }
 
 - (void)resetHasChanged {
@@ -80,7 +79,7 @@
     BHTextFieldHelperInfo *i = [self.infoForKey objectForKey:key];
     
     if (!i) {
-        i = [[[BHTextFieldHelperInfo alloc] init] autorelease];
+        i = [[BHTextFieldHelperInfo alloc] init];
     }
     
     i.field    = field;
@@ -149,7 +148,7 @@
     BHTextFieldHelperInfo *i = [self.infoForKey objectForKey:key];
     
     if (!i) {
-        i = [[[BHTextFieldHelperInfo alloc] init] autorelease];
+        i = [[BHTextFieldHelperInfo alloc] init];
     }
     
     i.field    = field;
